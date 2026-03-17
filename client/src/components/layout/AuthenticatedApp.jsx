@@ -446,8 +446,8 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
           )}
 
           {tab === "referrals" && (
-            <section className="grid gap-6 xl:grid-cols-[400px_1fr]">
-              <form onSubmit={submitReferral} className="premium-surface px-6 py-8 h-fit lg:sticky lg:top-6">
+            <section className="max-w-2xl mx-auto">
+              <form onSubmit={submitReferral} className="premium-surface px-6 py-8">
                 <div className="flex items-center justify-between mb-2">
                   <SectionTitle eyebrow={editingId ? "Actualización" : "Registro"} title={editingId ? "Editar Lead" : "Nuevo Lead"} />
                   {editingId && (
@@ -502,43 +502,6 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
                   <button className="premium-button w-full mt-4">{editingId ? "Actualizar Referido" : "Registrar Referido"}</button>
                 </div>
               </form>
-
-              <div className="premium-surface px-6 py-8">
-                <SectionTitle eyebrow="Pipeline" title="Lista de Referidos" description="Todos tus leads registrados." />
-                <div className="mt-8 space-y-4">
-                  {referrals.map((item) => (
-                    <article key={item.id} className="referral-entry rounded-[1.8rem] border border-slate-100 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
-                        <div className="flex-1">
-                          <div className="flex flex-wrap items-center gap-3">
-                            <h3 className="font-display text-2xl font-bold tracking-tight text-slate-950">{item.firstName} {item.lastName}</h3>
-                            <span className="rounded-full bg-slate-100 text-slate-600 px-3 py-1 text-[9px] font-black uppercase tracking-widest border border-slate-200">{stageLabels[item.stage]}</span>
-                          </div>
-                          <p className="mt-2 text-sm font-medium text-slate-500">{item.email} · {item.phone}</p>
-                          <div className="mt-4 flex flex-wrap gap-2">
-                            {(item.goals || []).map((goal) => <span key={goal} className="rounded-full bg-primary/5 px-2.5 py-1 text-[9px] font-bold uppercase text-primary border border-primary/10">{goal}</span>)}
-                            <span className="rounded-full bg-slate-50 px-2.5 py-1 text-[9px] font-bold uppercase text-slate-600 border border-slate-100">{item.commune}</span>
-                          </div>
-                          {item.description && (
-                            <p className="mt-4 text-sm leading-relaxed text-slate-600 italic">"{item.description}"</p>
-                          )}
-                          {auth.user.role === "admin" && (
-                            <button
-                              type="button"
-                              onClick={() => startEditing(item)}
-                              className="mt-6 text-[10px] font-bold uppercase tracking-[0.15em] text-indigo-600 hover:text-indigo-700 transition-colors flex items-center gap-2"
-                            >
-                              <span className="h-4 w-4 rounded-full bg-indigo-50 flex items-center justify-center">✎</span>
-                              Editar Información
-                            </button>
-                          )}
-                        </div>
-                      </div>
-                    </article>
-                  ))}
-                  {referrals.length === 0 && <div className="rounded-[2rem] border-2 border-dashed border-slate-100 p-12 text-center text-slate-400 font-medium">No hay referidos registrados bajo este criterio.</div>}
-                </div>
-              </div>
             </section>
           )}
 
@@ -547,24 +510,46 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
               <SectionTitle eyebrow="Gestión" title="Seguimiento Activo" description="Control granular de estados comerciales." />
               <div className="mt-8 space-y-4">
                 {referrals.map((item) => (
-                  <article key={item.id} className="referral-entry rounded-[1.8rem] border border-slate-100 bg-white p-6 shadow-sm">
+                  <article key={item.id} className="referral-entry rounded-[1.8rem] border border-slate-100 bg-white p-6 shadow-sm hover:shadow-md transition-shadow">
                     <div className="flex flex-col gap-6 xl:flex-row xl:items-start xl:justify-between">
                       <div className="flex-1">
-                        <h3 className="font-display text-2xl font-bold text-slate-950">{item.firstName} {item.lastName}</h3>
-                        <div className="mt-4 flex flex-wrap gap-2">
+                        <div className="flex flex-wrap items-center gap-3">
+                          <h3 className="font-display text-2xl font-bold tracking-tight text-slate-950">{item.firstName} {item.lastName}</h3>
                           <span className="rounded-full bg-indigo-50 text-indigo-700 px-3 py-1 text-[9px] font-black uppercase tracking-widest border border-indigo-100">{stageLabels[item.stage]}</span>
                           <span className="rounded-full bg-slate-900 text-white px-3 py-1 text-[9px] font-black uppercase tracking-widest">{item.status}</span>
                         </div>
+                        <p className="mt-2 text-sm font-medium text-slate-500">{item.email} · {item.phone}</p>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          {(item.goals || []).map((goal) => <span key={goal} className="rounded-full bg-primary/5 px-2.5 py-1 text-[9px] font-bold uppercase text-primary border border-primary/10">{goal}</span>)}
+                          <span className="rounded-full bg-slate-50 px-2.5 py-1 text-[9px] font-bold uppercase text-slate-600 border border-slate-100">{item.commune}</span>
+                        </div>
+
+                        {item.description && (
+                          <p className="mt-4 text-sm leading-relaxed text-slate-600 italic">"{item.description}"</p>
+                        )}
+
                         {item.statusNote && (
-                          <div className="mt-4 p-4 rounded-2xl bg-slate-50 border border-slate-100">
-                            <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Nota de Seguimiento</div>
-                            <p className="text-sm text-slate-600 italic">"{item.statusNote}"</p>
+                          <div className="mt-6 p-4 rounded-2xl bg-slate-50 border border-slate-100 border-l-4 border-l-indigo-500">
+                            <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Nota de Seguimiento (Admin)</div>
+                            <p className="text-sm text-slate-700 font-medium italic">"{item.statusNote}"</p>
                           </div>
+                        )}
+
+                        {auth.user.role === "admin" && (
+                          <button
+                            type="button"
+                            onClick={() => startEditing(item)}
+                            className="mt-6 text-[10px] font-bold uppercase tracking-[0.15em] text-indigo-600 hover:text-indigo-700 transition-colors flex items-center gap-2"
+                          >
+                            <span className="h-4 w-4 rounded-full bg-indigo-50 flex items-center justify-center">✎</span>
+                            Editar Información
+                          </button>
                         )}
                       </div>
 
                       {auth.user.role === "admin" && (
-                        <div className="flex flex-col gap-3 min-w-[240px]">
+                        <div className="flex flex-col gap-3 min-w-[240px] xl:mt-0 mt-6 pt-6 border-t xl:border-t-0 xl:pt-0 border-slate-100">
+                          <div className="text-[9px] font-black uppercase tracking-widest text-slate-400 mb-1">Control Administrativo</div>
                           <select value={item.stage} title="Cambiar Etapa" onChange={(e) => updateStatus(item.id, e.target.value, (stageDefaults[e.target.value] || [])[0], item.statusNote)} className="premium-input text-xs font-bold uppercase tracking-wider">
                             {Object.entries(stageLabels).map(([v, l]) => <option key={v} value={v}>{l}</option>)}
                           </select>
@@ -582,6 +567,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
                     </div>
                   </article>
                 ))}
+                {referrals.length === 0 && <div className="rounded-[2rem] border-2 border-dashed border-slate-100 p-12 text-center text-slate-400 font-medium">No hay referidos registrados bajo este criterio.</div>}
               </div>
             </div>
           )}
