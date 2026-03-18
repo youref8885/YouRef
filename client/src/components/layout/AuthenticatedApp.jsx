@@ -91,6 +91,11 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
   const [regiones, setRegiones] = useState([]);
   const [comunas, setComunas] = useState([]);
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
+  
+  // Scroll to top when changing tabs
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [tab]);
 
   useEffect(() => {
     async function fetchRegiones() {
@@ -727,21 +732,29 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
 
       {/* Mobile Bottom Navigation */}
       <nav className="mobile-bottom-nav lg:hidden">
-        {[
-          ["dashboard", "🏠", "Dash"],
-          ["referrals", "📝", "Refer"],
-          ["tracking", "📋", "Sigue"],
-          ["profile", "👤", "Perfil"]
-        ].map(([id, icon, label]) => (
-          <button
-            key={id}
-            onClick={() => setTab(id)}
-            className={classNames("mobile-nav-item", tab === id && "active")}
-          >
-            <span className="mobile-nav-icon">{icon}</span>
-            <span>{label}</span>
-          </button>
-        ))}
+        {navItems.map(([id, label]) => {
+          const navIcons = {
+            dashboard: "🏠",
+            referrals: "📝",
+            tracking: "📋",
+            admin: "👥",
+            management: "⚙️",
+            profile: "👤"
+          };
+          // Shorten labels for mobile if they are too long
+          const displayLabel = label.length > 8 ? label.substring(0, 7) + "." : label;
+
+          return (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              className={classNames("mobile-nav-item", tab === id && "active")}
+            >
+              <span className="mobile-nav-icon">{navIcons[id] || "❓"}</span>
+              <span className="truncate w-full">{displayLabel}</span>
+            </button>
+          );
+        })}
       </nav>
     </div>
   );

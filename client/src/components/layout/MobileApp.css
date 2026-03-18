@@ -57,9 +57,17 @@
     border-top: 1px solid rgba(0,0,0,0.05);
     z-index: 100;
     padding: 0 1rem;
-    justify-content: space-around;
+    justify-content: flex-start; /* Changed from space-around to allow scrolling */
     align-items: center;
     box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+    overflow-x: auto; /* Allow horizontal scrolling */
+    scrollbar-width: none; /* Hide scrollbar for Firefox */
+    -ms-overflow-style: none; /* Hide scrollbar for IE/Edge */
+    gap: 0.5rem; /* Space between items */
+  }
+
+  .mobile-bottom-nav::-webkit-scrollbar {
+    display: none; /* Hide scrollbar for Chrome/Safari */
   }
 
   .theme-dark .mobile-bottom-nav {
@@ -80,7 +88,9 @@
     text-transform: uppercase;
     letter-spacing: 0.1em;
     transition: all 0.2s;
-    flex: 1;
+    flex: 0 0 auto; /* Prevent shrinking */
+    min-width: 70px; /* Ensure a minimum width */
+    padding: 0 4px;
   }
 
   .mobile-nav-item.active {
