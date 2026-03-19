@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { apiRequest } from "../../api";
+import { apiRequest, API_URL } from "../../api";
 import { classNames, currency, profilePalette } from "../../utils";
 import { ThemeToggle } from "./ThemeToggle";
 import { Toast } from "../ui/Toast";
@@ -100,8 +100,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
   useEffect(() => {
     async function fetchRegiones() {
       try {
-        const response = await fetch("http://localhost:4000/api/external/locations/regiones");
-        const data = await response.json();
+        const data = await apiRequest("/external/locations/regiones");
         const regionList = Array.isArray(data) ? data : [];
         setRegiones(regionList);
 
@@ -126,8 +125,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
     }
     setIsLoadingLocations(true);
     try {
-      const response = await fetch(`http://localhost:4000/api/external/locations/regiones/${regionCode}/comunas`);
-      const data = await response.json();
+      const data = await apiRequest(`/external/locations/regiones/${regionCode}/comunas`);
       setComunas(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error("Error fetching comunas:", error);
