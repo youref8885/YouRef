@@ -1,0 +1,20 @@
+[
+  {
+    "id": "usr_82ffe423-2a6a-43db-a58b-383cd9ea8954",
+    "email": "007.lloyd.higgs@gmail.com",
+    "role": "advisor",
+    "is_verified": true
+  },
+  {
+    "id": "usr_af2a4d32-c6a0-40b0-a193-33647d06a609",
+    "email": "fernando.cabezas@gmail.com",
+    "role": "advisor",
+    "is_verified": true
+  },
+  {
+    "id": "usr_admin_803b4a22-0a6f-4c17-92e0-4fe5fa3ed468",
+    "email": "admin@admin.cl",
+    "role": "admin",
+    "is_verified": true
+  }
+]
