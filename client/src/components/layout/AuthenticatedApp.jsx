@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiRequest, API_URL } from "../../api";
-import { classNames, currency, profilePalette } from "../../utils";
+import { classNames, currency, profilePalette, validateRUT, formatRUT, formatPhone } from "../../utils";
 import { ThemeToggle } from "./ThemeToggle";
 import { Toast } from "../ui/Toast";
 import { StatCard, AdminInsightCard } from "../dashboard/StatCard";
@@ -14,7 +14,7 @@ const emptyReferral = {
   firstName: "",
   lastName: "",
   rut: "",
-  phone: "",
+  phone: "+56 9",
   email: "",
   goals: [],
   region: "",
@@ -103,6 +103,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
   });
   const [message, setMessage] = useState("");
   const [editingId, setEditingId] = useState(null);
+  const [rutError, setRutError] = useState("");
   const [regiones, setRegiones] = useState([]);
   const [comunas, setComunas] = useState([]);
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
@@ -222,6 +223,10 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
 
   async function submitReferral(event) {
     event.preventDefault();
+    if (rutError) {
+      setMessage("Por favor, ingrese un RUT válido.");
+      return;
+    }
     try {
       if (editingId) {
         const data = await apiRequest(`/referrals/${editingId}`, { method: "PUT", token: auth.token, body: referralForm });
@@ -234,6 +239,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
         setMessage("Referido creado correctamente.");
       }
       setReferralForm(emptyReferral);
+      setRutError("");
       loadDashboard();
       loadAdminDashboard(selectedUser);
     } catch (error) {
@@ -311,7 +317,9 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
       {/* Mobile Top Bar */}
       <header className="mobile-top-bar lg:hidden">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[linear-gradient(135deg,#0f172a_0%,#223d61_100%)] text-sm font-black text-white">YR</div>
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-transparent overflow-hidden">
+            <img src="/LOGOYourRef.png" alt="YouRef Logo" className="h-full w-full object-contain" />
+          </div>
           <span className="font-display text-xl font-bold text-slate-950">YouRef</span>
         </div>
         <ThemeToggle theme={theme} onToggle={onToggleTheme} />
@@ -323,8 +331,8 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
           <div className="premium-orb premium-orb-gold !top-[-110px] !right-[-50px] !h-[220px] !w-[220px]" />
           <div className="relative z-10 flex h-full flex-col">
             <div className="flex items-center justify-between gap-3">
-              <div className="inline-flex items-center gap-3 rounded-full border border-white/12 bg-white/7 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.34em] text-white/75">
-                <span className="h-2 w-2 rounded-full bg-[#d2a25a]" />
+              <div className="inline-flex items-center gap-3 rounded-full border border-white/12 bg-white/7 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.34em] text-white/75">
+                <img src="/LOGOYourRef.png" alt="Logo" className="h-5 w-5 object-contain" />
                 YouRef
               </div>
               <ThemeToggle theme={theme} onToggle={onToggleTheme} />
@@ -509,8 +517,25 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
                     <Field label="Nombre" value={referralForm.firstName} onChange={(value) => setReferralForm((prev) => ({ ...prev, firstName: value }))} />
                     <Field label="Apellido" value={referralForm.lastName} onChange={(value) => setReferralForm((prev) => ({ ...prev, lastName: value }))} />
                   </div>
-                  <Field label="RUT" value={referralForm.rut} onChange={(value) => setReferralForm((prev) => ({ ...prev, rut: value }))} />
-                  <Field label="Teléfono" value={referralForm.phone} onChange={(value) => setReferralForm((prev) => ({ ...prev, phone: value }))} />
+                  <Field 
+                    label="RUT" 
+                    value={referralForm.rut} 
+                    error={rutError}
+                    onChange={(value) => {
+                      const formatted = formatRUT(value);
+                      setReferralForm((prev) => ({ ...prev, rut: formatted }));
+                      if (formatted && !validateRUT(formatted)) {
+                        setRutError("RUT inválido");
+                      } else {
+                        setRutError("");
+                      }
+                    }} 
+                  />
+                  <Field 
+                    label="Teléfono" 
+                    value={referralForm.phone} 
+                    onChange={(value) => setReferralForm((prev) => ({ ...prev, phone: formatPhone(value) }))} 
+                  />
                   <Field label="Email" type="email" value={referralForm.email} onChange={(value) => setReferralForm((prev) => ({ ...prev, email: value }))} />
                   <div>
                     <span className="mb-2 block text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">Objetivo de compra</span>

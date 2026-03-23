@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { classNames } from "../../utils";
+import { classNames, validateRUT, formatRUT, formatPhone } from "../../utils";
 import { ThemeToggle } from "../layout/ThemeToggle";
 import { Field } from "../ui/Input";
 import { apiRequest } from "../../api";
@@ -35,6 +35,7 @@ export function LoginPanel({
   const [preVerifiedData, setPreVerifiedData] = useState(null);
   const [internalLoading, setInternalLoading] = useState(false);
   const [localError, setLocalError] = useState("");
+  const [localRUTError, setLocalRUTError] = useState("");
 
   const [forgotForm, setForgotForm] = useState({ email: "" });
   const [resetForm, setResetForm] = useState({ email: "", code: "", password: "", confirmPassword: "" });
@@ -77,6 +78,10 @@ export function LoginPanel({
 
   async function handleFinalVerify(e) {
     e.preventDefault();
+    if (localRUTError) {
+      setLocalError("Por favor, ingrese un RUT válido.");
+      return;
+    }
     if (preVerifiedData.password !== preVerifiedData.confirmPassword) {
       setLocalError("Las contraseñas no coinciden.");
       return;
@@ -126,8 +131,8 @@ export function LoginPanel({
             <div className="mx-auto max-w-lg">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-[1.4rem] bg-[linear-gradient(135deg,#0f172a_0%,#223d61_100%)] text-2xl font-black tracking-[-0.1em] text-white shadow-[0_18px_34px_rgba(15,23,42,0.16)]">
-                    YR
+                  <div className="flex h-16 w-16 items-center justify-center rounded-[1.4rem] bg-transparent overflow-hidden shadow-[0_18px_34px_rgba(15,23,42,0.16)]">
+                    <img src="/LOGOYourRef.png" alt="YouRef Logo" className="h-full w-full object-contain" />
                   </div>
                   <div>
                     <div className="font-display text-4xl font-semibold tracking-[-0.05em] text-slate-950">YouRef</div>
@@ -192,9 +197,26 @@ export function LoginPanel({
                   <div className="md:col-span-2">
                     <Field label="Correo electrónico" value={preVerifiedData.email} disabled />
                   </div>
-                  <Field label="RUT" value={preVerifiedData.rut} onChange={(v) => updateRegister("rut", v)} />
+                  <Field 
+                    label="RUT" 
+                    value={preVerifiedData.rut} 
+                    error={localRUTError}
+                    onChange={(v) => {
+                      const formatted = formatRUT(v);
+                      updateRegister("rut", formatted);
+                      if (formatted && !validateRUT(formatted)) {
+                        setLocalRUTError("RUT inválido");
+                      } else {
+                        setLocalRUTError("");
+                      }
+                    }} 
+                  />
                   <Field label="Fecha de nacimiento" type="date" value={preVerifiedData.dateOfBirth} onChange={(v) => updateRegister("dateOfBirth", v)} />
-                  <Field label="Teléfono" value={preVerifiedData.phone} onChange={(v) => updateRegister("phone", v)} />
+                  <Field 
+                    label="Teléfono" 
+                    value={preVerifiedData.phone} 
+                    onChange={(v) => updateRegister("phone", formatPhone(v))} 
+                  />
                   <div className="hidden"><Field label="Password" type="password" value={preVerifiedData.password} /></div> {/* Spacer or hidden helper */}
                   <div className="md:col-span-2 grid gap-4 md:grid-cols-2">
                     <Field label="Nueva contraseña" type="password" value={preVerifiedData.password} onChange={(v) => updateRegister("password", v)} />
