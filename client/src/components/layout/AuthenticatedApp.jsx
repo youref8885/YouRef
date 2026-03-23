@@ -17,7 +17,7 @@ const emptyReferral = {
   phone: "+56 9",
   email: "",
   goals: [],
-  region: "",
+  region: "13", // Default to Metropolitana
   commune: "",
   income: "",
   downPayment: "",
@@ -182,6 +182,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
   const cancelEditing = () => {
     setEditingId(null);
     setReferralForm(emptyReferral);
+    handleRegionChange("13");
   };
 
   useEffect(() => {
@@ -364,7 +365,9 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
         setMessage("Referido creado correctamente.");
       }
       setReferralForm(emptyReferral);
-      setComunas([]); // Explicitly clear comunas list
+      setComunas([]); 
+      // Re-trigger Metropolitana comunas fetch for the next referral
+      handleRegionChange("13");
       setRutError("");
       loadDashboard();
       loadAdminDashboard(selectedUser);
