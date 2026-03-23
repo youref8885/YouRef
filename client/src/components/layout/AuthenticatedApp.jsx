@@ -104,6 +104,9 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
   const [message, setMessage] = useState("");
   const [editingId, setEditingId] = useState(null);
   const [rutError, setRutError] = useState("");
+  const [showTimeoutModal, setShowTimeoutModal] = useState(false);
+  const [countdown, setCountdown] = useState(10);
+  const [lastActivity, setLastActivity] = useState(Date.now());
   const [regiones, setRegiones] = useState([]);
   const [comunas, setComunas] = useState([]);
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
@@ -220,6 +223,52 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
 
     return () => clearInterval(timer);
   }, [selectedUser]);
+
+  // Idle Timeout Logic
+  useEffect(() => {
+    const events = ["mousedown", "keydown", "scroll", "touchstart"];
+    const handleActivity = () => setLastActivity(Date.now());
+    
+    events.forEach(event => window.addEventListener(event, handleActivity));
+    
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const diff = Math.floor((now - lastActivity) / 1000);
+      
+      // Using 600 seconds (10 minutes) for production.
+      if (diff >= 600 && !showTimeoutModal) {
+        setShowTimeoutModal(true);
+        setCountdown(10);
+      }
+    }, 1000);
+
+    return () => {
+      events.forEach(event => window.removeEventListener(event, handleActivity));
+      clearInterval(interval);
+    };
+  }, [lastActivity, showTimeoutModal]);
+
+  // Countdown timer logic
+  useEffect(() => {
+    if (!showTimeoutModal) return;
+    
+    if (countdown === 0) {
+      onLogout();
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setCountdown(prev => prev - 1);
+    }, 1000);
+
+    return () => clearTimeout(timer);
+  }, [showTimeoutModal, countdown, onLogout]);
+
+  const extendSession = () => {
+    setLastActivity(Date.now());
+    setShowTimeoutModal(false);
+    setCountdown(10);
+  };
 
   async function submitReferral(event) {
     event.preventDefault();
@@ -877,7 +926,6 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
             management: "⚙️",
             profile: "👤"
           };
-          // Shorten labels for mobile if they are too long
           const displayLabel = label.length > 8 ? label.substring(0, 7) + "." : label;
 
           return (
@@ -892,6 +940,41 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
           );
         })}
       </nav>
+
+      {showTimeoutModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
+          <div className="premium-surface max-w-sm w-full p-8 text-center relative overflow-hidden">
+            <div className="premium-orb premium-orb-gold !-top-10 !-right-10" />
+            <div className="relative z-10">
+              <div className="flex justify-center mb-6">
+                <div className="h-20 w-20 rounded-full bg-slate-50 border-4 border-slate-100 flex items-center justify-center text-3xl font-display font-bold text-slate-950 shadow-inner">
+                  {countdown}
+                </div>
+              </div>
+              <h2 className="font-display text-2xl font-bold text-slate-950 mb-2">¿Sigues ahí?</h2>
+              <p className="text-slate-500 text-sm mb-8 leading-relaxed">
+                Tu sesión está a punto de expirar por inactividad. ¿Deseas mantenerte conectado?
+              </p>
+              <div className="flex flex-col gap-3">
+                <button 
+                  type="button"
+                  onClick={extendSession}
+                  className="premium-button w-full"
+                >
+                  Extender Sesión
+                </button>
+                <button 
+                  type="button"
+                  onClick={onLogout}
+                  className="text-[10px] font-bold uppercase tracking-widest text-slate-400 hover:text-red-500 transition-colors py-2"
+                >
+                  Cerrar sesión ahora
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
