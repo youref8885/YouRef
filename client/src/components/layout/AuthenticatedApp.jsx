@@ -364,6 +364,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
         setMessage("Referido creado correctamente.");
       }
       setReferralForm(emptyReferral);
+      setComunas([]); // Explicitly clear comunas list
       setRutError("");
       loadDashboard();
       loadAdminDashboard(selectedUser);
