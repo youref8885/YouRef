@@ -270,10 +270,86 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
     setCountdown(10);
   };
 
+  const scrollToField = (id) => {
+    setTimeout(() => {
+      const labelEl = document.getElementById(`${id}-label`);
+      const targetEl = labelEl || document.getElementById(id);
+      
+      if (targetEl) {
+        // block: 'start' ensures the page actually "sube" (scrolls up) to the item
+        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Focus the input
+        const input = targetEl.tagName === 'INPUT' || targetEl.tagName === 'SELECT' || targetEl.tagName === 'TEXTAREA'
+          ? targetEl
+          : targetEl.querySelector('input, select, textarea');
+          
+        if (input) {
+          // Focus after a bit more delay to avoid fight between scroll and focus scroll
+          setTimeout(() => input.focus({ preventScroll: true }), 300);
+        }
+      }
+    }, 100);
+  };
+
   async function submitReferral(event) {
     event.preventDefault();
+    
+    const { firstName, lastName, rut, phone, email, goals, region, commune, income, downPayment } = referralForm;
+
+    if (!firstName.trim()) {
+      setMessage("Por favor, ingrese el nombre.");
+      scrollToField("referral-firstName");
+      return;
+    }
+    if (!lastName.trim()) {
+      setMessage("Por favor, ingrese el apellido.");
+      scrollToField("referral-lastName");
+      return;
+    }
+    if (!rut.trim()) {
+      setMessage("Por favor, ingrese el RUT.");
+      scrollToField("referral-rut");
+      return;
+    }
     if (rutError) {
       setMessage("Por favor, ingrese un RUT válido.");
+      scrollToField("referral-rut");
+      return;
+    }
+    if (!phone.replace("+56 9", "").trim()) {
+      setMessage("Por favor, ingrese el teléfono.");
+      scrollToField("referral-phone");
+      return;
+    }
+    if (!email.trim() || !email.includes("@")) {
+      setMessage("Por favor, ingrese un email válido.");
+      scrollToField("referral-email");
+      return;
+    }
+    if (goals.length === 0) {
+      setMessage("Por favor, seleccione al menos un objetivo de compra.");
+      scrollToField("referral-goals");
+      return;
+    }
+    if (!region) {
+      setMessage("Por favor, seleccione la región.");
+      scrollToField("referral-region");
+      return;
+    }
+    if (!commune) {
+      setMessage("Por favor, seleccione la comuna.");
+      scrollToField("referral-commune");
+      return;
+    }
+    if (income === "") {
+      setMessage("Por favor, seleccione un rango de renta.");
+      scrollToField("referral-income");
+      return;
+    }
+    if (downPayment === "") {
+      setMessage("Por favor, seleccione un monto de pie.");
+      scrollToField("referral-downPayment");
       return;
     }
     try {
@@ -565,10 +641,11 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
                 </div>
                 <div className="mt-8 space-y-4">
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <Field label="Nombre" value={referralForm.firstName} onChange={(value) => setReferralForm((prev) => ({ ...prev, firstName: value }))} />
-                    <Field label="Apellido" value={referralForm.lastName} onChange={(value) => setReferralForm((prev) => ({ ...prev, lastName: value }))} />
+                    <Field id="referral-firstName" label="Nombre" value={referralForm.firstName} onChange={(value) => setReferralForm((prev) => ({ ...prev, firstName: value }))} />
+                    <Field id="referral-lastName" label="Apellido" value={referralForm.lastName} onChange={(value) => setReferralForm((prev) => ({ ...prev, lastName: value }))} />
                   </div>
                   <Field 
+                    id="referral-rut"
                     label="RUT" 
                     value={referralForm.rut} 
                     error={rutError}
@@ -583,12 +660,13 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
                     }} 
                   />
                   <Field 
+                    id="referral-phone"
                     label="Teléfono" 
                     value={referralForm.phone} 
                     onChange={(value) => setReferralForm((prev) => ({ ...prev, phone: formatPhone(value) }))} 
                   />
-                  <Field label="Email" type="email" value={referralForm.email} onChange={(value) => setReferralForm((prev) => ({ ...prev, email: value }))} />
-                  <div>
+                  <Field id="referral-email" label="Email" type="email" value={referralForm.email} onChange={(value) => setReferralForm((prev) => ({ ...prev, email: value }))} />
+                  <div id="referral-goals" style={{ scrollMarginTop: '140px' }}>
                     <span className="mb-2 block text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">Objetivo de compra</span>
                     <div className="flex flex-wrap gap-2">
                       {["Vivir", "Invertir"].map((goal) => {
@@ -602,14 +680,14 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
                     </div>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <label className="block">
+                    <label className="block" id="referral-region" style={{ scrollMarginTop: '140px' }}>
                       <span className="mb-2 block text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">Región</span>
                       <select value={referralForm.region} onChange={(e) => handleRegionChange(e.target.value)} className="premium-input w-full text-xs">
                         <option value="">Seleccione...</option>
                         {(Array.isArray(regiones) ? regiones : []).map(reg => <option key={reg.codigo} value={reg.codigo}>{reg.nombre}</option>)}
                       </select>
                     </label>
-                    <label className="block">
+                    <label className="block" id="referral-commune" style={{ scrollMarginTop: '140px' }}>
                       <span className="mb-2 block text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">Comuna</span>
                       <select value={referralForm.commune} onChange={(e) => setReferralForm(prev => ({ ...prev, commune: e.target.value }))} className="premium-input w-full text-xs" disabled={!referralForm.region || isLoadingLocations}>
                         <option value="">{isLoadingLocations ? "Cargando..." : "Seleccione..."}</option>
@@ -618,7 +696,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
                     </label>
                   </div>
                   <div className="grid gap-4 sm:grid-cols-2">
-                    <div className="sm:col-span-2">
+                    <div className="sm:col-span-2" id="referral-income" style={{ scrollMarginTop: '140px' }}>
                       <span className="mb-2 block text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">Renta Mensual</span>
                       <div className="grid grid-cols-2 gap-2">
                         {INCOME_RANGES.map((range) => {
@@ -647,7 +725,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
                       </div>
                     </div>
                     
-                    <div className="sm:col-span-2">
+                    <div className="sm:col-span-2" id="referral-downPayment" style={{ scrollMarginTop: '140px' }}>
                       <span className="mb-2 block text-[11px] font-bold uppercase tracking-[0.24em] text-slate-500">Monto del Pie</span>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                         {DOWN_PAYMENT_RANGES.map((range) => {

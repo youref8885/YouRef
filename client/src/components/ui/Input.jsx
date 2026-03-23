@@ -1,8 +1,9 @@
-export function Field({ label, value, onChange, type = "text", disabled = false, error = "" }) {
+export function Field({ id, label, value, onChange, type = "text", disabled = false, error = "" }) {
   return (
-    <label className={`block ${disabled ? "cursor-not-allowed opacity-80" : ""}`}>
+    <label className={`block ${disabled ? "cursor-not-allowed opacity-80" : ""}`} id={id ? `${id}-label` : undefined} style={{ scrollMarginTop: '140px' }}>
       <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.24em] text-slate-500">{label}</span>
       <input 
+        id={id}
         type={type} 
         value={value} 
         onChange={(event) => !disabled && onChange(event.target.value)} 
