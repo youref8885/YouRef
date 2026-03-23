@@ -317,10 +317,10 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
       {/* Mobile Top Bar */}
       <header className="mobile-top-bar lg:hidden">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-transparent overflow-hidden">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white p-1.5 shadow-sm overflow-hidden">
             <img src="/LOGOYourRef.png" alt="YouRef Logo" className="h-full w-full object-contain" />
           </div>
-          <span className="font-display text-xl font-bold text-slate-950">YouRef</span>
+          <span className="font-display text-xl font-bold text-slate-950 tracking-tight">YouRef</span>
         </div>
         <ThemeToggle theme={theme} onToggle={onToggleTheme} />
       </header>
@@ -331,8 +331,10 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
           <div className="premium-orb premium-orb-gold !top-[-110px] !right-[-50px] !h-[220px] !w-[220px]" />
           <div className="relative z-10 flex h-full flex-col">
             <div className="flex items-center justify-between gap-3">
-              <div className="inline-flex items-center gap-3 rounded-full border border-white/12 bg-white/7 px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.34em] text-white/75">
-                <img src="/LOGOYourRef.png" alt="Logo" className="h-5 w-5 object-contain" />
+              <div className="inline-flex items-center gap-2.5 rounded-2xl border border-white/10 bg-white/5 py-1.5 pl-1.5 pr-4 text-[11px] font-bold uppercase tracking-[0.2em] text-white/80 backdrop-blur-md">
+                <div className="h-7 w-7 rounded-lg bg-white p-1 flex items-center justify-center overflow-hidden">
+                  <img src="/LOGOYourRef.png" alt="Logo" className="h-full w-full object-contain" />
+                </div>
                 YouRef
               </div>
               <ThemeToggle theme={theme} onToggle={onToggleTheme} />

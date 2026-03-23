@@ -131,7 +131,7 @@ export function LoginPanel({
             <div className="mx-auto max-w-lg">
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="flex h-16 w-16 items-center justify-center rounded-[1.4rem] bg-transparent overflow-hidden shadow-[0_18px_34px_rgba(15,23,42,0.16)]">
+                  <div className="flex h-16 w-16 items-center justify-center rounded-[1.4rem] bg-white p-2.5 shadow-[0_18px_34px_rgba(15,23,42,0.16)] overflow-hidden">
                     <img src="/LOGOYourRef.png" alt="YouRef Logo" className="h-full w-full object-contain" />
                   </div>
                   <div>
