@@ -5,7 +5,7 @@ import { AuthenticatedApp } from "./components/layout/AuthenticatedApp";
 
 export default function App() {
   const [auth, setAuth] = useState(() => {
-    const saved = localStorage.getItem("crm-youref-auth");
+    const saved = sessionStorage.getItem("crm-youref-auth");
     return saved ? JSON.parse(saved) : null;
   });
   const [theme, setTheme] = useState(() => localStorage.getItem("crm-youref-theme") || "light");
@@ -25,8 +25,8 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    if (auth) localStorage.setItem("crm-youref-auth", JSON.stringify(auth));
-    else localStorage.removeItem("crm-youref-auth");
+    if (auth) sessionStorage.setItem("crm-youref-auth", JSON.stringify(auth));
+    else sessionStorage.removeItem("crm-youref-auth");
   }, [auth]);
 
   useEffect(() => {

@@ -249,21 +249,34 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
     };
   }, [lastActivity, showTimeoutModal]);
 
-  // Countdown timer logic
+  // Countdown timer logic using timestamps for background tab robustness
+  const [modalStartTime, setModalStartTime] = useState(null);
+
   useEffect(() => {
-    if (!showTimeoutModal) return;
-    
-    if (countdown === 0) {
-      onLogout();
-      return;
+    if (showTimeoutModal && !modalStartTime) {
+      setModalStartTime(Date.now());
+    } else if (!showTimeoutModal) {
+      setModalStartTime(null);
     }
+  }, [showTimeoutModal, modalStartTime]);
 
-    const timer = setTimeout(() => {
-      setCountdown(prev => prev - 1);
-    }, 1000);
+  useEffect(() => {
+    if (!showTimeoutModal || !modalStartTime) return;
+    
+    const interval = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - modalStartTime) / 1000);
+      const remaining = 10 - elapsed;
+      
+      if (remaining <= 0) {
+        onLogout();
+        clearInterval(interval);
+      } else {
+        setCountdown(remaining);
+      }
+    }, 200);
 
-    return () => clearTimeout(timer);
-  }, [showTimeoutModal, countdown, onLogout]);
+    return () => clearInterval(interval);
+  }, [showTimeoutModal, modalStartTime, onLogout]);
 
   const extendSession = () => {
     setLastActivity(Date.now());
@@ -1021,6 +1034,14 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
             </button>
           );
         })}
+        {/* Manual Logout Button for Mobile */}
+        <button
+          onClick={onLogout}
+          className="mobile-nav-item text-red-400"
+        >
+          <span className="mobile-nav-icon">🚪</span>
+          <span className="truncate w-full">Salir</span>
+        </button>
       </nav>
 
       {showTimeoutModal && (
