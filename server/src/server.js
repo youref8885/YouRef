@@ -323,7 +323,7 @@ app.get("/api/referrals/check-rut/:rut", authRequired(), async (req, res) => {
     .from("referrals")
     .select("id, first_name, last_name")
     .eq("rut", sanitizedRut)
-    .maybeSingle();
+    .limit(1);
 
   if (error) {
     return res.status(500).json({ message: "Error al verificar RUT." });
