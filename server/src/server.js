@@ -267,18 +267,18 @@ app.post("/api/referrals", authRequired(), async (req, res) => {
   const sanitizedRut = sanitizeRut(rut);
 
   // Verificación de RUT duplicado
-  const { data: existingReferral, error: checkError } = await supabase
+  const { data: existingReferrals, error: checkError } = await supabase
     .from("referrals")
     .select("id")
     .eq("rut", sanitizedRut)
-    .maybeSingle();
+    .limit(1);
 
   if (checkError) {
     console.error("Error al verificar RUT:", checkError);
     return res.status(500).json({ message: "Error al verificar duplicidad de RUT." });
   }
 
-  if (existingReferral) {
+  if (existingReferrals && existingReferrals.length > 0) {
     return res.status(400).json({ message: "RUT ya ingresado" });
   }
 
@@ -329,7 +329,7 @@ app.get("/api/referrals/check-rut/:rut", authRequired(), async (req, res) => {
     return res.status(500).json({ message: "Error al verificar RUT." });
   }
 
-  res.json({ exists: !!data, referral: data });
+  res.json({ exists: data && data.length > 0, referral: data ? data[0] : null });
 });
 app.patch("/api/referrals/:id/status", authRequired(), async (req, res) => {
   const { stage, status, statusNote } = req.body;
