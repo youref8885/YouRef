@@ -264,6 +264,24 @@ app.post("/api/referrals", authRequired(), async (req, res) => {
     return;
   }
 
+  const sanitizedRut = sanitizeRut(rut);
+
+  // Verificación de RUT duplicado
+  const { data: existingReferral, error: checkError } = await supabase
+    .from("referrals")
+    .select("id")
+    .eq("rut", sanitizedRut)
+    .maybeSingle();
+
+  if (checkError) {
+    console.error("Error al verificar RUT:", checkError);
+    return res.status(500).json({ message: "Error al verificar duplicidad de RUT." });
+  }
+
+  if (existingReferral) {
+    return res.status(400).json({ message: "RUT ya ingresado" });
+  }
+
   const referral = {
     id: createId("ref_"),
     owner_user_id: req.user.id,
@@ -297,6 +315,64 @@ app.post("/api/referrals", authRequired(), async (req, res) => {
   });
 
   res.status(201).json({ referral: data });
+});
+
+app.get("/api/referrals/check-rut/:rut", authRequired(), async (req, res) => {
+  const sanitizedRut = sanitizeRut(req.params.rut);
+  const { data, error } = await supabase
+    .from("referrals")
+    .select("id, first_name, last_name")
+    .eq("rut", sanitizedRut)
+    .maybeSingle();
+
+  if (error) {
+    return res.status(500).json({ message: "Error al verificar RUT." });
+  }
+
+  res.json({ exists: !!data, referral: data });
+});
+
+app.get("/api/admin/reports/partners", authRequired(), adminRequired(), async (req, res) => {
+  try {
+    const { data: users, error: usersError } = await supabase.from("users").select("id, first_name, last_name, role").eq("role", "advisor");
+    const { data: referrals, error: referralsError } = await supabase.from("referrals").select("*");
+
+    if (usersError || referralsError) throw new Error("Error fetching data for report.");
+
+    const report = users.map(user => {
+      const userReferrals = referrals.filter(r => r.owner_user_id === user.id);
+      
+      // Regions/Communes
+      const communes = userReferrals.reduce((acc, r) => {
+        const c = r.commune || "N/A";
+        acc[c] = (acc[c] || 0) + 1;
+        return acc;
+      }, {});
+      const topCommunes = Object.entries(communes).sort((a, b) => b[1] - a[1]).slice(0, 3).map(e => e[0]).join(", ");
+
+      // Monthly breakdown
+      const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+      const monthlyData = userReferrals.reduce((acc, r) => {
+        const d = new Date(r.created_at);
+        const m = months[d.getMonth()];
+        acc[m] = (acc[m] || 0) + 1;
+        return acc;
+      }, {});
+
+      return {
+        Socio: `${user.first_name} ${user.last_name}`,
+        Total_Referidos: userReferrals.length,
+        Zonas_Criticas: topCommunes || "N/A",
+        Renta_Promedio: userReferrals.length ? Math.round(userReferrals.reduce((sum, r) => sum + Number(r.income || 0), 0) / userReferrals.length) : 0,
+        Pie_Promedio: userReferrals.length ? Math.round(userReferrals.reduce((sum, r) => sum + Number(r.down_payment || 0), 0) / userReferrals.length) : 0,
+        ...monthlyData
+      };
+    });
+
+    res.json(report);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 });
 
 app.patch("/api/referrals/:id/status", authRequired(), async (req, res) => {

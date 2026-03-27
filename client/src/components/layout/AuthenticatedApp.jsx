@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { apiRequest, API_URL } from "../../api";
+import * as XLSX from "xlsx";
 import { classNames, currency, profilePalette, validateRUT, formatRUT, formatPhone } from "../../utils";
 import { ThemeToggle } from "./ThemeToggle";
 import { Toast } from "../ui/Toast";
@@ -110,6 +111,8 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
   const [regiones, setRegiones] = useState([]);
   const [comunas, setComunas] = useState([]);
   const [isLoadingLocations, setIsLoadingLocations] = useState(false);
+  const [isCheckingRut, setIsCheckingRut] = useState(false);
+  const [rutExists, setRutExists] = useState(false);
   
   // Scroll to top when changing tabs
   useEffect(() => {
@@ -183,6 +186,8 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
     setEditingId(null);
     setReferralForm(emptyReferral);
     handleRegionChange("13");
+    setRutError("");
+    setRutExists(false);
   };
 
   useEffect(() => {
@@ -284,6 +289,31 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
     setCountdown(10);
   };
 
+  const handleRutCheck = async (rutValue) => {
+    const cleanRut = (rutValue || "").replace(/[^0-9kK]/g, "");
+    if (cleanRut.length < 8 || !validateRUT(rutValue)) {
+      setRutExists(false);
+      return;
+    }
+
+    setIsCheckingRut(true);
+    try {
+      const data = await apiRequest(`/referrals/check-rut/${cleanRut}`, { token: auth.token });
+      // If we are editing, we don't care if the RUT exists IF it's the same as the current referral being edited
+      if (data.exists && (!editingId || data.referral.id !== editingId)) {
+        setRutExists(true);
+        setRutError("RUT ya ingresado");
+      } else {
+        setRutExists(false);
+        if (rutError === "RUT ya ingresado") setRutError("");
+      }
+    } catch (error) {
+      console.error("Error checking RUT:", error);
+    } finally {
+      setIsCheckingRut(false);
+    }
+  };
+
   const scrollToField = (id) => {
     setTimeout(() => {
       const labelEl = document.getElementById(`${id}-label`);
@@ -327,7 +357,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
       return;
     }
     if (rutError) {
-      setMessage("Por favor, ingrese un RUT válido.");
+      setMessage(rutError === "RUT ya ingresado" ? "RUT ya ingresado" : "Por favor, ingrese un RUT válido.");
       scrollToField("referral-rut");
       return;
     }
@@ -382,8 +412,15 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
       // Re-trigger Metropolitana comunas fetch for the next referral
       handleRegionChange("13");
       setRutError("");
+      setRutExists(false);
       loadDashboard();
       loadAdminDashboard(selectedUser);
+      
+      // "Imperceptible reload" - switch to tracking to see the result
+      if (!editingId) {
+        setTab("tracking");
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (error) {
       setMessage(error.message);
     }
@@ -436,6 +473,81 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
     }
   }
 
+  const downloadReferralsExcel = () => {
+    try {
+      if (referrals.length === 0) {
+        setMessage("No hay referidos para descargar.");
+        return;
+      }
+
+      const worksheet = XLSX.utils.json_to_sheet(referrals.map(r => ({
+        Nombre: r.firstName,
+        Apellido: r.lastName,
+        RUT: r.rut,
+        Telefono: r.phone,
+        Email: r.email,
+        Objetivos: (r.goals || []).join(", "),
+        Region: r.region,
+        Comuna: r.commune,
+        Renta: r.income,
+        Pie: r.downPayment,
+        Descripcion: r.description,
+        Etapa: stageLabels[r.stage] || r.stage,
+        Estado: r.status,
+        Fecha_Creacion: r.createdAt || r.created_at
+      })));
+
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Referidos");
+      
+      const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Reporte_Referidos_${new Date().toISOString().split("T")[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setMessage("Descarga iniciada.");
+    } catch (error) {
+      console.error("Excel Error:", error);
+      setMessage("Error al generar Excel.");
+    }
+  };
+
+  const downloadPartnersExcel = async () => {
+    try {
+      const data = await apiRequest("/admin/reports/partners", { token: auth.token });
+      if (!data || data.length === 0) {
+        setMessage("No hay datos de socios para descargar.");
+        return;
+      }
+
+      const worksheet = XLSX.utils.json_to_sheet(data);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Socios");
+      
+      const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const blob = new Blob([wbout], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Reporte_Socios_${new Date().toISOString().split("T")[0]}.xlsx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+
+      setMessage("Descarga iniciada.");
+    } catch (error) {
+      console.error("Excel Error:", error);
+      setMessage("Error al generar reporte de socios.");
+    }
+  };
+
   async function saveProfile(event) {
     event.preventDefault();
     try {
@@ -451,7 +563,8 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
     ["referrals", "Referidos"],
     ["tracking", "Seguimiento Activo"],
     ...(auth.user.role === "admin" ? [["admin", "Equipo"], ["management", "Gestión"]] : []),
-    ["profile", "Perfil"]
+    ["profile", "Perfil"],
+    ["downloads", "Descargas"]
   ];
 
   return (
@@ -671,10 +784,15 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
                       setReferralForm((prev) => ({ ...prev, rut: formatted }));
                       if (formatted && !validateRUT(formatted)) {
                         setRutError("RUT inválido");
+                        setRutExists(false);
                       } else {
                         setRutError("");
+                        if (formatted) handleRutCheck(formatted);
                       }
                     }} 
+                    onBlur={(e) => {
+                      if (e.target.value) handleRutCheck(e.target.value);
+                    }}
                   />
                   <Field 
                     id="referral-phone"
@@ -1007,6 +1125,55 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
               })()}
             </div>
           )}
+
+          {tab === "downloads" && (
+            <div className="max-w-2xl mx-auto space-y-6 pb-10">
+              <div className="premium-surface px-8 py-10 relative overflow-hidden">
+                <div className="premium-orb premium-orb-gold !-top-20 !-right-20" />
+                <div className="relative z-10 text-center">
+                  <SectionTitle 
+                    eyebrow="Exportación de Datos" 
+                    title="Centro de Descargas" 
+                    description="Genera y descarga informes detallados en formato Excel." 
+                  />
+                  
+                  <div className="mt-12 grid gap-6 sm:grid-cols-2">
+                    <button 
+                      onClick={downloadReferralsExcel}
+                      className="group relative flex flex-col items-center gap-4 rounded-[2.5rem] border border-slate-100 bg-white p-8 transition-all hover:border-slate-300 hover:shadow-2xl hover:-translate-y-1"
+                    >
+                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald/5 text-emerald transition-transform group-hover:scale-110">
+                        <span className="text-3xl">📊</span>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Base de Datos</div>
+                        <div className="text-sm font-bold text-slate-900">Informe Referidos</div>
+                      </div>
+                      <div className="mt-2 rounded-full bg-slate-50 px-4 py-1.5 text-[9px] font-bold uppercase tracking-widest text-slate-500">Descargar .xlsx</div>
+                    </button>
+
+                    <button 
+                      onClick={downloadPartnersExcel}
+                      className="group relative flex flex-col items-center gap-4 rounded-[2.5rem] border border-slate-100 bg-white p-8 transition-all hover:border-slate-300 hover:shadow-2xl hover:-translate-y-1"
+                    >
+                      <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 transition-transform group-hover:scale-110">
+                        <span className="text-3xl">👥</span>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Métricas de Equipo</div>
+                        <div className="text-sm font-bold text-slate-900">Informe Socios</div>
+                      </div>
+                      <div className="mt-2 rounded-full bg-slate-50 px-4 py-1.5 text-[9px] font-bold uppercase tracking-widest text-slate-500">Descargar .xlsx</div>
+                    </button>
+                  </div>
+
+                  <p className="mt-10 text-[10px] text-slate-400 font-medium uppercase tracking-widest">
+                    Los informes contienen datos actualizados al tiempo real.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </main>
       </div>
 
@@ -1019,7 +1186,8 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
             tracking: "📋",
             admin: "👥",
             management: "⚙️",
-            profile: "👤"
+            profile: "👤",
+            downloads: "📥"
           };
           const displayLabel = label.length > 8 ? label.substring(0, 7) + "." : label;
 
