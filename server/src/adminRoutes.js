@@ -88,4 +88,45 @@ router.post("/users/invite", authRequired(), adminRequired(), async (req, res) =
   }
 });
 
+router.get("/reports/partners", authRequired(), adminRequired(), async (req, res) => {
+  try {
+    const { data: users, error: usersError } = await supabase.from("users").select("id, first_name, last_name, role").eq("role", "advisor");
+    const { data: referrals, error: referralsError } = await supabase.from("referrals").select("*");
+
+    if (usersError || referralsError) throw new Error("Error fetching data for report.");
+
+    const report = users.map(user => {
+      const userReferrals = referrals.filter(r => r.owner_user_id === user.id);
+      
+      const communes = userReferrals.reduce((acc, r) => {
+        const c = r.commune || "N/A";
+        acc[c] = (acc[c] || 0) + 1;
+        return acc;
+      }, {});
+      const topCommunes = Object.entries(communes).sort((a, b) => b[1] - a[1]).slice(0, 3).map(e => e[0]).join(", ");
+
+      const months = ["Ene", "Feb", "Mar", "Abr", "May", "Jun", "Jul", "Ago", "Sep", "Oct", "Nov", "Dic"];
+      const monthlyData = userReferrals.reduce((acc, r) => {
+        const d = new Date(r.created_at);
+        const m = months[d.getMonth()];
+        acc[m] = (acc[m] || 0) + 1;
+        return acc;
+      }, {});
+
+      return {
+        Socio: `${user.first_name} ${user.last_name}`,
+        Total_Referidos: userReferrals.length,
+        Zonas_Criticas: topCommunes || "N/A",
+        Renta_Promedio: userReferrals.length ? Math.round(userReferrals.reduce((sum, r) => sum + Number(r.income || 0), 0) / userReferrals.length) : 0,
+        Pie_Promedio: userReferrals.length ? Math.round(userReferrals.reduce((sum, r) => sum + Number(r.down_payment || 0), 0) / userReferrals.length) : 0,
+        ...monthlyData
+      };
+    });
+
+    res.json(report);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 export default router;
