@@ -106,15 +106,15 @@ export function LoginPanel({
                 YouRef CRM
               </div>
               <h1 className="mt-8 max-w-2xl font-display text-5xl leading-[0.95] tracking-[-0.05em] text-white lg:text-7xl">
-                Una experiencia de CRM elegante, ejecutiva y enfocada en cierres.
+                El primer CRM de referidos inmobiliarios diseñado para maximizar cada oportunidad.
               </h1>
               <p className="mt-6 max-w-xl text-base leading-7 text-white/72 lg:text-lg">
-                Gestiona usuarios, autenticación de dos pasos, referidos y analitica en una interfaz sobria con sensacion corporativa premium.
+                Organiza, controla y monetiza cada referido desde una plataforma simple, diseñada para el mundo inmobiliario.
               </p>
             </div>
 
             <div className="grid gap-4 md:grid-cols-3">
-              {[["2FA", "Verificacion por correo dinámico"], ["CRM", "Seguimiento comercial ordenado"], ["LIVE", "Indicadores actualizados"]].map(([value, label]) => (
+              {[["2FA", "Acceso protegido y verificación"], ["CRM", "Gestión Comercial"], ["LIVE", "Indicadores en tiempo real"]].map(([value, label]) => (
                 <div key={label} className="rounded-[1.75rem] border border-white/12 bg-white/8 p-5 backdrop-blur-md">
                   <div className="text-[10px] font-semibold uppercase tracking-[0.28em] text-white/55">Módulo</div>
                   <div className="mt-3 font-display text-4xl tracking-[-0.05em] text-white">{value}</div>
@@ -165,7 +165,7 @@ export function LoginPanel({
             <div className="mx-auto max-w-lg">
               {mode === "login" && (
                 <form className="mt-8 space-y-4" onSubmit={(event) => { event.preventDefault(); onLogin(loginForm); }}>
-                  <Field label="Correo" value={loginForm.email} onChange={(value) => setLoginForm((prev) => ({ ...prev, email: value }))} type="email" />
+                  <Field label="Correo Electrónico" value={loginForm.email} onChange={(value) => setLoginForm((prev) => ({ ...prev, email: value }))} type="email" />
                   <Field label="Contraseña" value={loginForm.password} onChange={(value) => setLoginForm((prev) => ({ ...prev, password: value }))} type="password" />
                   <button className="premium-button w-full">{loading ? "Ingresando..." : "Ingresar"}</button>
                   <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
