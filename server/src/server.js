@@ -452,43 +452,6 @@ app.get("/api/external/locations/regiones", async (req, res) => {
   }
 });
 
-const FALLBACK_COMUNAS_SANTIAGO = [
-  { codigo: "13101", nombre: "Santiago" },
-  { codigo: "13102", nombre: "Cerrillos" },
-  { codigo: "13103", nombre: "Cerro Navia" },
-  { codigo: "13104", nombre: "Conchalí" },
-  { codigo: "13105", nombre: "El Bosque" },
-  { codigo: "13106", nombre: "Estación Central" },
-  { codigo: "13107", nombre: "Huechuraba" },
-  { codigo: "13108", nombre: "Independencia" },
-  { codigo: "13109", nombre: "La Cisterna" },
-  { codigo: "13110", nombre: "La Florida" },
-  { codigo: "13111", nombre: "La Granja" },
-  { codigo: "13112", nombre: "La Pintana" },
-  { codigo: "13113", nombre: "La Reina" },
-  { codigo: "13114", nombre: "Las Condes" },
-  { codigo: "13115", nombre: "Lo Barnechea" },
-  { codigo: "13116", nombre: "Lo Espejo" },
-  { codigo: "13117", nombre: "Lo Prado" },
-  { codigo: "13118", nombre: "Macul" },
-  { codigo: "13119", nombre: "Maipú" },
-  { codigo: "13120", nombre: "Ñuñoa" },
-  { codigo: "13121", nombre: "Pedro Aguirre Cerda" },
-  { codigo: "13122", nombre: "Peñalolén" },
-  { codigo: "13123", nombre: "Providencia" },
-  { codigo: "13124", nombre: "Pudahuel" },
-  { codigo: "13125", nombre: "Quilicura" },
-  { codigo: "13126", nombre: "Quinta Normal" },
-  { codigo: "13127", nombre: "Recoleta" },
-  { codigo: "13128", nombre: "Renca" },
-  { codigo: "13129", nombre: "San Joaquín" },
-  { codigo: "13130", nombre: "San Miguel" },
-  { codigo: "13131", nombre: "San Ramón" },
-  { codigo: "13132", nombre: "Vitacura" },
-  { codigo: "13201", nombre: "Puente Alto" },
-  { codigo: "13401", nombre: "San Bernardo" }
-];
-
 app.get("/api/external/locations/regiones/:codigo/comunas", async (req, res) => {
   try {
     const response = await fetch(`https://apis.digital.gob.cl/dpa/regiones/${req.params.codigo}/comunas`);
@@ -496,12 +459,8 @@ app.get("/api/external/locations/regiones/:codigo/comunas", async (req, res) => 
     const data = await response.json();
     res.json(data);
   } catch (error) {
-    console.warn(`Usando fallback de comunas para region ${req.params.codigo} por error en API DPA:`, error.message);
-    if (req.params.codigo === "13") {
-      res.json(FALLBACK_COMUNAS_SANTIAGO);
-    } else {
-      res.json([]);
-    }
+    console.warn("Falla en comunas, retornando vacio para entrada manual:", error.message);
+    res.json([]);
   }
 });
 

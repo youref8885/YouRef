@@ -125,11 +125,6 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
         const data = await apiRequest("/external/locations/regiones");
         const regionList = Array.isArray(data) ? data : [];
         setRegiones(regionList);
-
-        // Ensure communes are loaded for the default region (Metropolitana)
-        if (referralForm.region === "13" && comunas.length === 0) {
-          handleRegionChange("13");
-        }
       } catch (error) {
         console.error("Error fetching regiones:", error);
         setRegiones([]);
@@ -137,6 +132,13 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
     }
     fetchRegiones();
   }, [editingId]); // Re-run when editingId changes to ensure default is set properly
+
+  // Trigger commune fetch when entering the referrals tab if they are missing
+  useEffect(() => {
+    if (tab === "referrals" && referralForm.region && comunas.length === 0) {
+      handleRegionChange(referralForm.region);
+    }
+  }, [tab, referralForm.region, comunas.length]);
 
   const handleRegionChange = async (regionCode) => {
     setReferralForm(prev => ({ ...prev, region: regionCode, commune: "" }));
