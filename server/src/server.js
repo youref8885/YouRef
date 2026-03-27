@@ -331,10 +331,6 @@ app.get("/api/referrals/check-rut/:rut", authRequired(), async (req, res) => {
 
   res.json({ exists: !!data, referral: data });
 });
-
-  res.json({ exists: !!data, referral: data });
-});
-
 app.patch("/api/referrals/:id/status", authRequired(), async (req, res) => {
   const { stage, status, statusNote } = req.body;
 
