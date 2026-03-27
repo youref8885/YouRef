@@ -24,17 +24,16 @@ router.post("/users/invite", authRequired(), adminRequired(), async (req, res) =
     // Verificar si el usuario ya existe
     const { data: existingUser } = await supabase
       .from("users")
-      .select("id")
+      .select("id, is_verified")
       .eq("email", normalizedEmail)
-      .single();
+      .maybeSingle();
 
-    if (existingUser) {
-      return res.status(409).json({ message: "Ya existe un usuario con este correo electrónico." });
+    if (existingUser && existingUser.is_verified) {
+      return res.status(409).json({ message: "Ya existe un usuario verificado con este correo electrónico." });
     }
 
     const otpCode = createOtpCode();
     const newUser = {
-      id: createId("usr_"),
       first_name: firstName.trim(),
       last_name: lastName.trim(),
       email: normalizedEmail,
@@ -43,11 +42,25 @@ router.post("/users/invite", authRequired(), adminRequired(), async (req, res) =
       otp_code: otpCode,
       otp_expires_at: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 horas para invitaciones
       invited_by_userid: req.user.id,
-      created_at: new Date().toISOString()
     };
 
-    const { error } = await supabase.from("users").insert([newUser]);
-    if (error) throw error;
+    if (existingUser) {
+      // Si existe pero no está verificado, actualizamos sus datos y reseteamos el OTP
+      const { error: updateError } = await supabase
+        .from("users")
+        .update(newUser)
+        .eq("id", existingUser.id);
+      
+      if (updateError) throw updateError;
+      newUser.id = existingUser.id; // Para el log posterior
+    } else {
+      // Si no existe, lo creamos
+      newUser.id = createId("usr_");
+      newUser.created_at = new Date().toISOString();
+
+      const { error: insertError } = await supabase.from("users").insert([newUser]);
+      if (insertError) throw insertError;
+    }
 
     // Trazabilidad
     await logAction({
