@@ -8,8 +8,7 @@ import { logAction } from "./auditService.js";
 const router = express.Router();
 
 /**
- * Invitación de nuevo usuario por parte del Admin.
- * Flujo: Admin -> Solo email/nombre -> Sistema -> OTP -> Usuario.
+ * GESTIÓN DE INVITACIONES DE SOCIOS
  */
 router.post("/users/invite", authRequired(), adminRequired(), async (req, res) => {
   const { firstName, lastName, email, role } = req.body;
@@ -21,7 +20,7 @@ router.post("/users/invite", authRequired(), adminRequired(), async (req, res) =
   try {
     const normalizedEmail = email.trim().toLowerCase();
     
-    // Verificar si el usuario ya existe
+    // Verificación de duplicidad
     const { data: existingUser } = await supabase
       .from("users")
       .select("id, is_verified")
@@ -45,7 +44,7 @@ router.post("/users/invite", authRequired(), adminRequired(), async (req, res) =
     };
 
     if (existingUser) {
-      // Si existe pero no está verificado, actualizamos sus datos y reseteamos el OTP
+      // Actualización de registro invitado (re-invitación)
       const { error: updateError } = await supabase
         .from("users")
         .update(newUser)
@@ -105,6 +104,9 @@ router.post("/users/invite", authRequired(), adminRequired(), async (req, res) =
   }
 });
 
+/**
+ * REPORTES DE DESEMPEÑO Y EXPORTACIÓN EXCEL
+ */
 router.get("/reports/partners", authRequired(), adminRequired(), async (req, res) => {
   try {
     const { data: users, error: usersError } = await supabase.from("users").select("id, first_name, last_name, role").eq("role", "advisor");

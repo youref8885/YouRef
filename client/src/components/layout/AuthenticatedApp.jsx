@@ -570,7 +570,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
 
   return (
     <div className={classNames("theme-shell min-h-screen", theme === "dark" ? "theme-dark" : "theme-light")}>
-      {/* Mobile Top Bar */}
+      {/* Barra Superior (Móvil) */}
       <header className="mobile-top-bar lg:hidden">
         <div className="flex items-center gap-3">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-white p-1.5 shadow-sm overflow-hidden">
@@ -582,7 +582,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
       </header>
 
       <div className="mx-auto grid max-w-[1600px] grid-cols-1 gap-6 p-4 md:p-6 lg:grid-cols-[280px_1fr] lg:pt-6 mobile-app-container">
-        {/* Sidebar - Desktop Only */}
+        {/* Navegación Lateral (Escritorio) */}
         <aside className="premium-dark-panel h-fit lg:sticky lg:top-6 p-6 lg:p-8 flex flex-col overflow-hidden transition-all duration-300 mobile-hide-sidebar">
           <div className="premium-orb premium-orb-gold !top-[-110px] !right-[-50px] !h-[220px] !w-[220px]" />
           <div className="relative z-10 flex h-full flex-col">
@@ -628,6 +628,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
         </aside>
 
         <main className="min-h-0">
+          {/* Vista: Gestión Comercial (Administrador) */}
           {tab === "management" && auth.user.role === "admin" && (
             <div className="space-y-6 pb-10">
               <div className="premium-surface px-8 py-8">
@@ -668,9 +669,10 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
           )}
           {message && <Toast message={message} />}
 
+          {/* Vista: Dashboard de Métricas */}
           {tab === "dashboard" && dashboard && (
             <div className="grid grid-cols-1 md:grid-cols-12 gap-6 pb-6">
-              {/* Header / Hero - Tightened */}
+              {/* Cabecera del Dashboard */}
               <div className="md:col-span-12 premium-surface px-6 py-5 lg:px-8 lg:py-6 flex flex-col md:flex-row md:items-center justify-between gap-6 overflow-hidden relative">
                 <div className="premium-orb premium-orb-gold !-top-10 !-right-10" />
                 <div className="relative z-10">
@@ -686,12 +688,12 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
                 </div>
               </div>
 
-              {/* Bento - Funnel (Main Visual) */}
+              {/* Bento - Embudo Visual */}
               <div className="md:col-span-9 md:row-span-2 h-full">
                 <PipelineFunnel data={dashboard} />
               </div>
 
-              {/* Bento - Quick Stats */}
+              {/* Bento - Estadísticas Rápidas */}
               <div className="md:col-span-3">
                 <StatCard label="Usuarios Activos" value={dashboard.activeUsers} accent="from-[#d4af37] to-[#f4cf6d]" />
               </div>
@@ -700,7 +702,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
                 <StatCard label="Renta Promedio" value={currency(dashboard.averageTicket)} accent="from-[#0d5d56] to-[#2a8b81]" />
               </div>
 
-              {/* Bento - Analytics (MiniBars) */}
+              {/* Bento - Analítica (MiniBars) */}
               <div className="md:col-span-6 h-full">
                 <MiniBars title="Objetivos" data={dashboard.goals} accent="linear-gradient(90deg,#0d2a4a 0%,#1e4d7d 100%)" tone="#e1e7f0" />
               </div>
@@ -761,6 +763,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
             </div>
           )}
 
+          {/* Vista: Registro de Nuevo Referido */}
           {tab === "referrals" && (
             <section className="max-w-2xl mx-auto">
               <form onSubmit={submitReferral} className="premium-surface px-6 py-8">
@@ -908,6 +911,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
             </section>
           )}
 
+          {/* Vista: Seguimiento Activo */}
           {tab === "tracking" && (
             <div className="premium-surface px-6 py-8">
               <SectionTitle eyebrow="Gestión" title="Seguimiento Activo" description="Control granular de estados comerciales." />
@@ -975,6 +979,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
             </div>
           )}
 
+          {/* Vista: Perfil de Usuario */}
           {tab === "profile" && (
             <section className="grid gap-6 xl:grid-cols-[1fr_400px]">
               <form className="premium-surface px-6 py-8" onSubmit={saveProfile}>
@@ -1028,6 +1033,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
             </section>
           )}
 
+          {/* Vista: Gestión de Equipo (Administrador) */}
           {tab === "admin" && auth.user.role === "admin" && (
             <div className="space-y-6 pb-10">
               {/* Admin Header */}
@@ -1135,6 +1141,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
             </div>
           )}
 
+          {/* Vista: Centro de Descargas */}
           {tab === "downloads" && (
             <div className="max-w-2xl mx-auto space-y-6 pb-10">
               <div className="premium-surface px-8 py-10 relative overflow-hidden">
@@ -1186,7 +1193,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
         </main>
       </div>
 
-      {/* Mobile Bottom Navigation */}
+      {/* Navegación Inferior (Móvil) */}
       <nav className="mobile-bottom-nav lg:hidden">
         {navItems.map(([id, label]) => {
           const navIcons = {
@@ -1221,6 +1228,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
         </button>
       </nav>
 
+      {/* Modal de Advertencia de Sesión (Timeout) */}
       {showTimeoutModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
           <div className="premium-surface max-w-sm w-full p-8 text-center relative overflow-hidden">

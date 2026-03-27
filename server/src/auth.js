@@ -2,6 +2,7 @@ import { USER_ROLES } from "./constants.js";
 import { supabase } from "./supabaseClient.js";
 import { createToken } from "./utils.js";
 
+// --- LÓGICA DE SESIONES Y SEGURIDAD ---
 export async function createSession(userId) {
   const token = createToken(24); // Token más largo para Supabase
   const session = {
@@ -17,6 +18,7 @@ export async function createSession(userId) {
   return token;
 }
 
+// Recuperación de Usuario desde Token
 export async function getUserFromToken(token) {
   if (!token) {
     return null;
@@ -54,6 +56,7 @@ export function withoutSensitiveUser(user) {
   };
 }
 
+// MIDDLEWARES DE PROTECCIÓN DE RUTAS
 export function authRequired() {
   return async (req, res, next) => {
     const authorization = req.headers.authorization || "";

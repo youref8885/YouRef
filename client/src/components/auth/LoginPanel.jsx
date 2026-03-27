@@ -95,6 +95,7 @@ export function LoginPanel({
   return (
     <div className={classNames("theme-shell min-h-screen px-0 py-0 lg:px-6 lg:py-6 login-mobile-container", theme === "dark" ? "theme-dark" : "theme-light")}>
       <div className="mx-auto grid min-h-screen lg:min-h-[calc(100vh-2rem)] max-w-[1560px] overflow-hidden rounded-none lg:rounded-[2.5rem] border-0 lg:border border-white/60 bg-white/55 shadow-none lg:shadow-[0_35px_120px_rgba(15,23,42,0.18)] backdrop-blur-xl lg:grid-cols-[1.08fr_0.92fr] login-mobile-shell">
+        {/* Item Izquierdo: Sistema y Branding */}
         <section className="hidden lg:flex lg:flex-col lg:justify-between premium-dark-panel relative overflow-hidden px-8 py-10 lg:px-14 lg:py-14 login-mobile-system-info">
           <div className="premium-orb premium-orb-gold" />
           <div className="premium-orb premium-orb-blue" />
@@ -113,6 +114,7 @@ export function LoginPanel({
               </p>
             </div>
 
+            {/* Módulos Destacados */}
             <div className="grid gap-4 md:grid-cols-3">
               {[["2FA", "Acceso protegido y verificación"], ["CRM", "Gestión Comercial"], ["LIVE", "Indicadores en tiempo real"]].map(([value, label]) => (
                 <div key={label} className="rounded-[1.75rem] border border-white/12 bg-white/8 p-5 backdrop-blur-md">
@@ -125,10 +127,12 @@ export function LoginPanel({
           </div>
         </section>
 
+        {/* Item Derecho: Autenticación */}
         <section className="flex items-center justify-center bg-[linear-gradient(180deg,rgba(255,255,255,0.72),rgba(246,246,244,0.88))] px-6 py-8 lg:px-10 login-mobile-auth-section">
           <div className="w-full max-w-2xl rounded-none lg:rounded-[2rem] border-0 lg:border border-white/70 bg-transparent lg:bg-white/88 p-0 lg:p-8 shadow-none lg:shadow-[0_25px_90px_rgba(15,23,42,0.12)] backdrop-blur-none lg:backdrop-blur-xl login-mobile-form-card">
             <ThemeToggle theme={theme} onToggle={onToggleTheme} className="theme-toggle-floating" />
             <div className="mx-auto max-w-lg">
+              {/* Logo y Título */}
               <div className="flex items-start justify-between gap-4">
                 <div className="flex items-center gap-4">
                   <div className="flex h-16 w-16 items-center justify-center rounded-[1.4rem] bg-white p-2.5 shadow-[0_18px_34px_rgba(15,23,42,0.16)] overflow-hidden">
@@ -141,6 +145,7 @@ export function LoginPanel({
                 </div>
               </div>
 
+              {/* Encabezado Dinámico */}
               <div className="mt-10">
                 <div className="premium-eyebrow">Acceso</div>
                 <h2 className="font-display text-4xl font-semibold tracking-[-0.04em] text-slate-950">
@@ -163,9 +168,11 @@ export function LoginPanel({
             ) : null}
 
             <div className="mx-auto max-w-lg">
+              {/* Formulario: Inicio de Sesión */}
               {mode === "login" && (
                 <form className="mt-8 space-y-4" onSubmit={(event) => { event.preventDefault(); onLogin(loginForm); }}>
                   <Field label="Correo Electrónico" value={loginForm.email} onChange={(value) => setLoginForm((prev) => ({ ...prev, email: value }))} type="email" />
+                  {/* Password / Contraseña */}
                   <Field label="Contraseña" value={loginForm.password} onChange={(value) => setLoginForm((prev) => ({ ...prev, password: value }))} type="password" />
                   <button className="premium-button w-full">{loading ? "Ingresando..." : "Ingresar"}</button>
                   <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
@@ -179,6 +186,7 @@ export function LoginPanel({
                 </form>
               )}
 
+              {/* Formulario: Validación de Invitación (OTP) */}
               {mode === "verify" && !preVerifiedData && (
                 <form className="mt-8 space-y-4" onSubmit={handlePreVerify}>
                   <Field label="Correo" type="email" value={verifyForm.email} onChange={(value) => setVerifyForm((prev) => ({ ...prev, email: value }))} />
@@ -190,6 +198,7 @@ export function LoginPanel({
                 </form>
               )}
 
+              {/* Formulario: Registro Completo de Socio */}
               {mode === "verify" && preVerifiedData && (
                 <form className="mt-8 grid gap-4 md:grid-cols-2" onSubmit={handleFinalVerify}>
                   <Field label="Nombre" value={preVerifiedData.firstName} disabled />
@@ -232,6 +241,7 @@ export function LoginPanel({
                 </form>
               )}
 
+              {/* Formulario: Recuperar Contraseña (Email) */}
               {mode === "forgot" && (
                 <form className="mt-8 space-y-4" onSubmit={(event) => { event.preventDefault(); onForgot(forgotForm); setResetForm((prev) => ({ ...prev, email: forgotForm.email })); }}>
                   <Field label="Correo" type="email" value={forgotForm.email} onChange={(value) => setForgotForm({ email: value })} />
@@ -247,6 +257,7 @@ export function LoginPanel({
                 </form>
               )}
 
+              {/* Formulario: Cambio de Contraseña (Código) */}
               {mode === "reset" && (
                 <form className="mt-8 space-y-4" onSubmit={(event) => { event.preventDefault(); onReset(resetForm); }}>
                   <Field label="Correo" type="email" value={resetForm.email} onChange={(value) => setResetForm((prev) => ({ ...prev, email: value }))} />
@@ -261,7 +272,7 @@ export function LoginPanel({
               )}
             </div>
             
-            {/* Footer Branding */}
+            {/* Footer / Powered by Lloyd Higgs */}
             <div className="mt-12 pt-8 border-t border-slate-100/60 text-center">
               <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 transition-opacity hover:opacity-80">
                 Powered by <a href="https://portafoliolloydhiggs.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-slate-950 transition-colors border-b border-slate-200 hover:border-slate-950 pb-0.5">Lloyd Higgs</a>

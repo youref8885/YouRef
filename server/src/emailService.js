@@ -25,7 +25,7 @@ export async function sendMail({ to, subject, html, templateParams, debugPayload
     EMAILJS_PRIVATE_KEY 
   } = process.env;
 
-  // 1. Try EmailJS if all keys are present
+  // Integración con EmailJS
   if (EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && EMAILJS_PUBLIC_KEY && EMAILJS_PRIVATE_KEY) {
     try {
       const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
@@ -55,7 +55,7 @@ export async function sendMail({ to, subject, html, templateParams, debugPayload
     }
   }
 
-  // 2. Fallback to NodeMailer (SMTP)
+  // Respaldo SMTP (NodeMailer)
   const transport = createTransport();
   const from = process.env.MAIL_FROM || "CRM YouRef <no-reply@youref.cl>";
 

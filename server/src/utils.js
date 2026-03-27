@@ -1,5 +1,7 @@
+// --- UTILIDADES GENERALES DEL SISTEMA ---
 import crypto from "crypto";
 
+// Generación de Identificadores Únicos
 export function createId(prefix = "") {
   return `${prefix}${crypto.randomUUID()}`;
 }
@@ -12,10 +14,12 @@ export function createOtpCode() {
   return String(Math.floor(100000 + Math.random() * 900000));
 }
 
+// Seguridad y Encriptación (Passwords y OTP)
 export function hashPassword(password) {
   return crypto.createHash("sha256").update(password).digest("hex");
 }
 
+// Formateo y Normalización de Datos (Chile)
 export function sanitizeRut(value = "") {
   return value.replace(/[^0-9kK]/g, "").toUpperCase();
 }
@@ -49,6 +53,7 @@ export function formatDate(date = new Date()) {
   return new Date(date).toISOString();
 }
 
+// Utilidades de Tiempo
 export function calculateAge(dateOfBirth) {
   const birthDate = new Date(dateOfBirth);
   const now = new Date();

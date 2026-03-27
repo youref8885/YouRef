@@ -21,7 +21,7 @@ import adminRoutes from "./adminRoutes.js";
 import { supabase } from "./supabaseClient.js";
 import { logAction } from "./auditService.js";
 
-// Validaciones básicas de conexión
+// --- CONFIGURACIÓN DE CONEXIÓN Y MIDDLEWARE ---
 if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
   console.error("Faltan variables de entorno para Supabase (SUPABASE_URL o SUPABASE_SERVICE_ROLE_KEY).");
   console.log("CWD:", process.cwd());
@@ -57,12 +57,15 @@ app.use(express.json());
 // Nuevas rutas de administración
 app.use("/api/admin", adminRoutes);
 
+/**
+ * Salud del Sistema
+ */
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true });
 });
 
 /**
- * Registro Público (AHORA DESHABILITADO EN FAVOR DE INVITACIONES ADMIN)
+ * ENDPOINTS DE AUTENTICACIÓN
  */
 app.post("/api/auth/register", async (req, res) => {
   res.status(403).json({ message: "El registro público está deshabilitado. Solicita una invitación a un administrador." });
@@ -70,7 +73,6 @@ app.post("/api/auth/register", async (req, res) => {
 
 /**
  * Verificación de 2FA / Registro de Invitados
- * Ahora maneja la actualización de datos completos para usuarios invitados.
  */
 app.post("/api/auth/verify-2fa", async (req, res) => {
   const { email, otpCode, firstName, lastName, rut, dateOfBirth, phone, password } = req.body;
@@ -202,7 +204,7 @@ app.post("/api/auth/login", async (req, res) => {
 });
 
 /**
- * Perfil de Usuario
+ * ENDPOINTS DE PERFIL DE USUARIO
  */
 app.get("/api/users/profile", authRequired(), async (req, res) => {
   // El middleware authRequired ya carga al usuario en req.user
@@ -238,9 +240,9 @@ app.patch("/api/users/profile", authRequired(), async (req, res) => {
   res.json({ user: withoutSensitiveUser(updatedUser) });
 });
 
-// El resto de las rutas de auth (forgot-password, reset-password) 
-// se deberían migrar similarmente usando supabase.from("password_resets") etc.
-// Por brevedad y foco en lo solicitado, saltamos a Referidos.
+/**
+ * ENDPOINTS DE GESTIÓN DE REFERIDOS
+ */
 
 app.get("/api/referrals", authRequired(), async (req, res) => {
   const query = supabase.from("referrals").select("*").order("created_at", { ascending: false });
@@ -266,7 +268,7 @@ app.post("/api/referrals", authRequired(), async (req, res) => {
 
   const sanitizedRut = sanitizeRut(rut);
 
-  // Verificación de RUT duplicado
+  // Validación de RUT
   const { data: existingReferrals, error: checkError } = await supabase
     .from("referrals")
     .select("id")
@@ -399,6 +401,9 @@ app.delete("/api/referrals/:id", authRequired(), adminRequired(), async (req, re
   res.json({ message: "Referido eliminado correctamente." });
 });
 
+/**
+ * ENDPOINTS DE DASHBOARD Y ANALÍTICA
+ */
 app.get("/api/dashboard/user", authRequired(), async (req, res) => {
   const { data: referrals } = await supabase.from("referrals").select("*");
   const { data: users } = await supabase.from("users").select("*");
@@ -420,7 +425,9 @@ app.get("/api/dashboard/admin", authRequired(), adminRequired(), async (req, res
   res.json({ dashboard, userOptions });
 });
 
-// Proxy para ubicaciones de Chile con Fallback (Se mantiene igual)
+/**
+ * PROXIES DE UBICACIÓN (CHILE DPA)
+ */
 const FALLBACK_REGIONES = [
   { codigo: "15", nombre: "Arica y Parinacota" },
   { codigo: "01", nombre: "Tarapacá" },
