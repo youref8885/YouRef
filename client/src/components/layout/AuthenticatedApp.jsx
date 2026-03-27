@@ -126,9 +126,8 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
         const regionList = Array.isArray(data) ? data : [];
         setRegiones(regionList);
 
-        // Set default region to Metropolitana (13) if it exists
-        const metropolitana = regionList.find(r => r.codigo === "13");
-        if (metropolitana && !referralForm.region && !editingId) {
+        // Ensure communes are loaded for the default region (Metropolitana)
+        if (referralForm.region === "13" && comunas.length === 0) {
           handleRegionChange("13");
         }
       } catch (error) {
@@ -807,7 +806,15 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
                       {["Vivir", "Invertir"].map((goal) => {
                         const active = referralForm.goals.includes(goal);
                         return (
-                          <button key={goal} type="button" onClick={() => setReferralForm((prev) => ({ ...prev, goals: active ? prev.goals.filter((item) => item !== goal) : [...prev.goals, goal] }))} className={classNames("rounded-full px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.15em] transition-all", active ? "bg-slate-950 text-white shadow-xl" : "bg-slate-100 text-slate-500 hover:bg-slate-200")}>
+                          <button 
+                            key={goal} 
+                            type="button" 
+                            onClick={() => setReferralForm((prev) => ({ ...prev, goals: [goal] }))} 
+                            className={classNames(
+                              "rounded-full px-5 py-2.5 text-[10px] font-bold uppercase tracking-[0.15em] transition-all", 
+                              active ? "bg-slate-950 text-white shadow-xl" : "bg-slate-100 text-slate-500 hover:bg-slate-200"
+                            )}
+                          >
                             {goal}
                           </button>
                         );
