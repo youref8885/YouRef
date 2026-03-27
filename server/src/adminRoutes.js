@@ -78,7 +78,11 @@ router.post("/users/invite", authRequired(), adminRequired(), async (req, res) =
           <p style="font-size: 0.8em; color: #666;">Si el botón no funciona, copia y pega este enlace en tu navegador: ${registrationUrl}</p>
         </div>
       `,
-      debugPayload: { otpCode, registrationUrl }
+      templateParams: {
+        user_name: firstName,
+        otp_code: otpCode,
+        registration_url: registrationUrl
+      }
     });
 
     res.status(201).json({ message: "Invitación enviada correctamente." });
