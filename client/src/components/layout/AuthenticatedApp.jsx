@@ -563,9 +563,8 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
     ["dashboard", "Dashboard"],
     ["referrals", "Referidos"],
     ["tracking", "Seguimiento Activo"],
-    ...(auth.user.role === "admin" ? [["admin", "Equipo"], ["management", "Gestión"]] : []),
-    ["profile", "Perfil"],
-    ["downloads", "Descargas"]
+    ...(auth.user.role === "admin" ? [["admin", "Equipo"], ["management", "Gestión"], ["downloads", "Descargas"]] : []),
+    ["profile", "Perfil"]
   ];
 
   return (
@@ -1142,7 +1141,7 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
           )}
 
           {/* Vista: Centro de Descargas */}
-          {tab === "downloads" && (
+          {tab === "downloads" && auth.user.role === "admin" && (
             <div className="max-w-2xl mx-auto space-y-6 pb-10">
               <div className="premium-surface px-8 py-10 relative overflow-hidden">
                 <div className="premium-orb premium-orb-gold !-top-20 !-right-20" />
