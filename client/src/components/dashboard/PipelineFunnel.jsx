@@ -22,16 +22,16 @@ export function PipelineFunnel({ data }) {
       <div className="flex-1 flex flex-col gap-2 relative">
         {stages.map((stage, idx) => {
           const total = totals[idx];
-          const width = (total / max) * 100;
+          const width = (total / max) * 65; // Cap bar at 65% width to leave space for labels
           const percentage = ((total / max) * 100).toFixed(0);
 
           return (
-            <div key={stage.id} className="group relative flex items-center h-full min-h-[60px]">
+            <div key={stage.id} className="group relative flex items-center h-full min-h-[64px] py-1">
               {/* Funnel Segment */}
               <div 
                 className="h-full rounded-2xl transition-all duration-700 ease-out relative overflow-hidden shadow-sm group-hover:shadow-md group-hover:scale-[1.01] funnel-segment"
                 style={{ 
-                  width: `${Math.max(width, 15)}%`, 
+                  width: `${Math.max(width, 12)}%`, 
                   background: `linear-gradient(90deg, ${stage.color} 0%, ${stage.color}dd 100%)`,
                   opacity: 0.85 + (idx * 0.05)
                 }}
@@ -40,12 +40,12 @@ export function PipelineFunnel({ data }) {
               </div>
               
               {/* Label & Stats */}
-              <div className="ml-4 flex-1">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-widest text-slate-500">{stage.label}</span>
-                  <span className="text-lg font-display font-bold text-slate-950">{total}</span>
+              <div className="ml-6 flex-1 min-w-[140px]">
+                <div className="flex items-center justify-between gap-4">
+                  <span className="text-[11px] font-black uppercase tracking-[0.2em] text-slate-500 whitespace-nowrap">{stage.label}</span>
+                  <span className="text-xl font-display font-bold text-slate-950">{total}</span>
                 </div>
-                <div className="text-[10px] text-slate-400 font-medium">{percentage}% del pico máximo</div>
+                <div className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">{percentage}% del pico máximo</div>
               </div>
             </div>
           );

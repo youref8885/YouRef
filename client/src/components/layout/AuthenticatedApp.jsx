@@ -687,16 +687,16 @@ export function AuthenticatedApp({ auth, onLogout, onProfileSave, setAuthNotice,
               </div>
 
               {/* Bento - Funnel (Main Visual) */}
-              <div className="md:col-span-8 md:row-span-2 h-full">
+              <div className="md:col-span-9 md:row-span-2 h-full">
                 <PipelineFunnel data={dashboard} />
               </div>
 
               {/* Bento - Quick Stats */}
-              <div className="md:col-span-4">
+              <div className="md:col-span-3">
                 <StatCard label="Usuarios Activos" value={dashboard.activeUsers} accent="from-[#d4af37] to-[#f4cf6d]" />
               </div>
 
-              <div className="md:col-span-4">
+              <div className="md:col-span-3">
                 <StatCard label="Renta Promedio" value={currency(dashboard.averageTicket)} accent="from-[#0d5d56] to-[#2a8b81]" />
               </div>
 
