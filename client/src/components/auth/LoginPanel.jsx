@@ -260,6 +260,13 @@ export function LoginPanel({
                 </form>
               )}
             </div>
+            
+            {/* Footer Branding */}
+            <div className="mt-12 pt-8 border-t border-slate-100/60 text-center">
+              <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-slate-400 transition-opacity hover:opacity-80">
+                Powered by <a href="https://portafoliolloydhiggs.vercel.app/" target="_blank" rel="noopener noreferrer" className="text-slate-600 hover:text-slate-950 transition-colors border-b border-slate-200 hover:border-slate-950 pb-0.5">Lloyd Higgs</a>
+              </p>
+            </div>
           </div>
         </section>
       </div>
