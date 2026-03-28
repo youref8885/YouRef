@@ -1,0 +1,99 @@
+/* client/src/components/auth/TermsMobile.css */
+
+/* Tablet and Mobile (Matching LoginMobile.css breakpoint) */
+@media (max-width: 1023px) {
+  .terms-overlay {
+    padding: 0 !important;
+    align-items: flex-end !important; /* Slide up from bottom */
+    background-color: rgba(2, 6, 23, 0.4) !important;
+  }
+
+  .terms-modal {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    border-radius: 2rem 2rem 0 0 !important; 
+    padding: 1.5rem 1.25rem !important; /* Reducido */
+    max-height: 94vh !important;
+    border: none !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+    background: rgba(255, 255, 255, 0.96) !important;
+    box-shadow: 0 -20px 40px rgba(0, 0, 0, 0.08) !important;
+    animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .theme-dark .terms-modal {
+    background: #0f172a !important;
+    border-top-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .terms-header h2 {
+    font-size: 1.35rem !important; /* Más compacto */
+    line-height: 1.1 !important;
+    letter-spacing: -0.04em !important;
+    margin-top: 0.25rem !important;
+  }
+
+  .terms-content {
+    margin: 0.75rem 0 !important; /* Compactado al máximo */
+    padding-right: 0 !important;
+  }
+
+  .terms-list {
+    gap: 0.75rem !important;
+    font-size: 0.9rem !important;
+  }
+
+  .terms-checkbox-container {
+    padding: 0 !important; /* Quitar fondo y padding */
+    background: transparent !important;
+    border-radius: 0;
+    margin-bottom: 0.75rem !important;
+    display: flex;
+    align-items: flex-start;
+  }
+
+  .terms-checkbox-container input {
+    width: 1.1rem !important;
+    height: 1.1rem !important;
+    margin-top: 0.1rem !important;
+  }
+
+  .checkbox-text {
+    font-size: 0.85rem !important; /* Texto legal más pequeño */
+    line-height: 1.3 !important;
+  }
+
+  .terms-actions {
+    display: grid !important;
+    grid-template-columns: 100px 1fr !important; /* Cancelar pequeño, Aceptar grande */
+    gap: 0.5rem !important;
+    padding-bottom: 0.5rem;
+  }
+
+  .accept-button, .cancel-button {
+    padding: 0.75rem 0.5rem !important; /* Aún más pequeño */
+    font-size: 0.9rem !important;
+    border-radius: 0.75rem !important;
+    white-space: nowrap;
+  }
+
+  .accept-button {
+    order: 2; /* Aceptar a la derecha */
+  }
+
+  .cancel-button {
+    order: 1; /* Cancelar a la izquierda */
+    background: rgba(0, 0, 0, 0.04) !important;
+    color: #64748b !important;
+  }
+
+  .theme-dark .cancel-button {
+    background: rgba(255, 255, 255, 0.05) !important;
+  }
+
+  @keyframes slide-up {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+}

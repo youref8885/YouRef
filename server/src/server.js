@@ -112,6 +112,12 @@ app.post("/api/auth/verify-2fa", async (req, res) => {
     updates.date_of_birth = dateOfBirth;
     updates.phone = normalizePhone(phone);
     updates.password_hash = hashPassword(password);
+    
+    // Si viene la aceptación de términos
+    if (req.body.termsAccepted) {
+      updates.terms_accepted = true;
+      updates.terms_accepted_at = new Date().toISOString();
+    }
   }
 
   const { data: verifiedUser, error: updateError } = await supabase

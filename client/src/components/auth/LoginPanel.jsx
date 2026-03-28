@@ -4,6 +4,7 @@ import { ThemeToggle } from "../layout/ThemeToggle";
 import { Field } from "../ui/Input";
 import { apiRequest } from "../../api";
 import "./LoginMobile.css";
+import { TermsModal } from "./TermsModal";
 
 const emptyRegister = {
   firstName: "",
@@ -39,6 +40,9 @@ export function LoginPanel({
 
   const [forgotForm, setForgotForm] = useState({ email: "" });
   const [resetForm, setResetForm] = useState({ email: "", code: "", password: "", confirmPassword: "" });
+  
+  const [showTermsModal, setShowTermsModal] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
 
   useEffect(() => {
     if (invitation) {
@@ -69,6 +73,7 @@ export function LoginPanel({
         lastName: data.lastName,
         email: data.email
       });
+      setShowTermsModal(true);
     } catch (error) {
       setLocalError(error.message);
     } finally {
@@ -88,7 +93,8 @@ export function LoginPanel({
     }
     onVerify({
       ...preVerifiedData,
-      otpCode: verifyForm.otpCode
+      otpCode: verifyForm.otpCode,
+      termsAccepted: true // Ya validado por el modal
     });
   }
 
@@ -106,9 +112,9 @@ export function LoginPanel({
                 <span className="h-2 w-2 rounded-full bg-[#d2a25a]" />
                 YouRef CRM
               </div>
-              <h1 className="mt-8 max-w-2xl font-display text-5xl leading-[0.95] tracking-[-0.05em] text-white lg:text-7xl">
+              <h1 className="mt-8 max-w-2xl font-display text-4xl leading-[0.95] tracking-[-0.05em] text-white lg:text-6xl">
                 El primer CRM de referidos inmobiliarios diseñado para maximizar cada oportunidad.
-              </h1>
+              </h1> 
               <p className="mt-6 max-w-xl text-base leading-7 text-white/72 lg:text-lg">
                 Organiza, controla y monetiza cada referido desde una plataforma simple, diseñada para el mundo inmobiliario.
               </p>
@@ -160,6 +166,21 @@ export function LoginPanel({
                 </p>
               </div>
             </div>
+
+            {showTermsModal && (
+              <TermsModal 
+                theme={theme}
+                onAccept={() => {
+                  setTermsAccepted(true);
+                  setShowTermsModal(false);
+                }}
+                onCancel={() => {
+                  setMode("login");
+                  setPreVerifiedData(null);
+                  setShowTermsModal(false);
+                }}
+              />
+            )}
 
             {notice || localError ? (
               <div className="mx-auto mt-6 max-w-lg rounded-[1.5rem] border border-[#e3d4ba] bg-[#f6eddc] px-4 py-3 text-sm text-[#5f4c29]">

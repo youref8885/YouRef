@@ -1,0 +1,172 @@
+/* client/src/components/auth/TermsModal.css */
+.terms-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background-color: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.terms-modal {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px);
+  max-width: 600px;
+  width: 100%;
+  border-radius: 2rem;
+  padding: 2.5rem;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.terms-header h2 {
+  margin-top: 0.5rem;
+  color: #0f172a;
+}
+
+.terms-content {
+  margin: 1.5rem 0;
+  overflow-y: auto;
+  padding-right: 0.5rem;
+  line-height: 1.6;
+}
+
+.terms-list {
+  padding-left: 1.25rem;
+  list-style-type: decimal;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  font-size: 0.925rem;
+  color: #334155;
+}
+
+.terms-footer {
+  margin-top: auto;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding-top: 1.5rem;
+}
+
+.terms-checkbox-container {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+  margin-bottom: 1.5rem;
+}
+
+.terms-checkbox-container input {
+  margin-top: 0.25rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  cursor: pointer;
+}
+
+.terms-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.accept-button, .cancel-button {
+  padding: 1rem;
+  border-radius: 1rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.cancel-button {
+  background: #f1f5f9;
+  color: #64748b;
+  border: 1px solid transparent;
+}
+
+.cancel-button:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.accept-button {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+  color: white;
+  border: none;
+}
+
+.accept-button.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.accept-button:not(.disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(15, 23, 42, 0.2);
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(0,0,0,0.1);
+  border-radius: 20px;
+}
+
+/* Dark Mode Styles */
+
+/* Dark Mode Styles */
+.terms-overlay.theme-dark {
+  background-color: rgba(2, 6, 23, 0.7);
+}
+
+.theme-dark .terms-modal {
+  background: rgba(30, 41, 59, 0.9);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+}
+
+.theme-dark .terms-header h2 {
+  color: #ffffff;
+}
+
+.theme-dark .terms-list {
+  color: #cbd5e1;
+}
+
+.theme-dark .terms-content p {
+  color: #94a3b8;
+}
+
+.theme-dark .terms-content .font-semibold {
+  color: #f1f5f9;
+}
+
+.theme-dark .terms-checkbox-container .checkbox-text {
+  color: #94a3b8;
+}
+
+.theme-dark .cancel-button {
+  background: rgba(15, 23, 42, 0.6);
+  color: #94a3b8;
+}
+
+.theme-dark .cancel-button:hover {
+  background: rgba(15, 23, 42, 0.9);
+  color: #ffffff;
+}
+
+.theme-dark .accept-button {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+}
+
+.theme-dark .custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.1);
+}
