@@ -76,25 +76,42 @@ router.post("/users/invite", authRequired(), adminRequired(), async (req, res) =
     // Enviar correo
     await sendMail({
       to: normalizedEmail,
-      subject: "Invitación a YouRef CRM",
+      subject: "Invitación a YouRef CRM — Activa tu cuenta",
       html: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: auto; border: 1px solid #eee; padding: 20px; border-radius: 10px;">
-          <h2 style="color: #0d2a4a;">Hola ${firstName},</h2>
-          <p>Has sido invitado a unirte al equipo de <strong>YouRef CRM</strong> como ${newUser.role}.</p>
-          <p>Para completar tu registro, por favor haz clic en el siguiente enlace e ingresa tu código de activación:</p>
-          <div style="text-align: center; margin: 30px 0;">
-            <a href="${registrationUrl}" style="background-color: #0d2a4a; color: white; padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold;">Ir al Registro</a>
+        <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 600px; margin: auto; border: 1px solid #e0e6ed; border-radius: 12px; overflow: hidden; background-color: #ffffff; color: #1e293b;">
+          <div style="background-color: #0d2a4a; padding: 30px; text-align: center;">
+            <a href="https://youref.onrender.com/" target="_blank">
+              <img src="https://youref.vercel.app//LOGOYourRef.png" alt="YouRef Logo" style="height: 60px; width: auto;" />
+            </a>
           </div>
-          <p style="text-align: center; font-size: 1.2em;">Tu código de activación es: <strong>${otpCode}</strong></p>
-          <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
-          <p style="font-size: 0.8em; color: #666;">Si el botón no funciona, copia y pega este enlace en tu navegador: ${registrationUrl}</p>
+
+          <div style="padding: 40px 30px; line-height: 1.6;">
+            <h2 style="color: #0d2a4a; margin-top: 0; font-size: 22px;">¡Hola ${firstName}!</h2>
+            <p>Has sido invitado a unirte al equipo de <strong>YouRef CRM</strong> como nuevo socio.</p>
+            <p>Para activar tu cuenta y comenzar a referir, por favor utiliza el siguiente código de seguridad:</p>
+
+            <div style="background-color: #f8fafc; border: 2px dashed #cbd5e1; border-radius: 8px; padding: 20px; text-align: center; margin: 30px 0;">
+              <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #0d2a4a;">${otpCode}</span>
+            </div>
+
+            <p style="margin-bottom: 30px;">También puedes completar tu registro haciendo clic directamente en el siguiente botón:</p>
+
+            <div style="text-align: center;">
+              <a href="${registrationUrl}" style="background-color: #0d2a4a; color: #ffffff; padding: 14px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block;">Activar mi Cuenta</a>
+            </div>
+
+            <p style="margin-top: 40px; font-size: 13px; color: #64748b; border-top: 1px solid #e2e8f0; padding-top: 20px;">
+              Si el botón no funciona, copia y pega este enlace en tu navegador:<br />
+              <span style="color: #0d2a4a; word-break: break-all;">${registrationUrl}</span>
+            </p>
+          </div>
+
+          <div style="background-color: #f1f5f9; padding: 20px; text-align: center; font-size: 12px; color: #94a3b8;">
+            © 2026 YouRef CRM. Todos los derechos reservados.<br />
+            Este es un correo automático generado para tu seguridad.
+          </div>
         </div>
-      `,
-      templateParams: {
-        user_name: firstName,
-        otp_code: otpCode,
-        registration_url: registrationUrl
-      }
+      `
     });
 
     res.status(201).json({ message: "Invitación enviada correctamente." });

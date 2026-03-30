@@ -1,91 +1,59 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
-function createTransport() {
-  const { SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS } = process.env;
-  if (!SMTP_HOST || !SMTP_PORT || !SMTP_USER || !SMTP_PASS) {
-    return null;
+// ─── Resend Client ───────────────────────────────────────────────────────────
+let resendClient = null;
+
+function getResendClient() {
+  if (!resendClient && process.env.RESEND_API_KEY) {
+    resendClient = new Resend(process.env.RESEND_API_KEY);
   }
-
-  return nodemailer.createTransport({
-    host: SMTP_HOST,
-    port: Number(SMTP_PORT),
-    secure: Number(SMTP_PORT) === 465,
-    auth: {
-      user: SMTP_USER,
-      pass: SMTP_PASS
-    }
-  });
+  return resendClient;
 }
 
-export async function sendMail({ to, subject, html, templateParams, debugPayload }) {
-  const { 
-    EMAILJS_SERVICE_ID, 
-    EMAILJS_TEMPLATE_ID, 
-    EMAILJS_PUBLIC_KEY, 
-    EMAILJS_PRIVATE_KEY 
-  } = process.env;
+// ─── Dirección remitente ─────────────────────────────────────────────────────
+// Usar dominio propio una vez verificado en Resend (youref.cl).
+// Mientras se verifica: "onboarding@resend.dev"
+function getFromAddress() {
+  const domain = process.env.RESEND_FROM_DOMAIN;
+  if (domain) {
+    return `YouRef CRM <no-reply@${domain}>`;
+  }
+  return "YouRef CRM <onboarding@resend.dev>";
+}
 
-  // Integración con EmailJS
-  if (EMAILJS_SERVICE_ID && EMAILJS_TEMPLATE_ID && EMAILJS_PUBLIC_KEY && EMAILJS_PRIVATE_KEY) {
-    const payload = {
-      service_id: EMAILJS_SERVICE_ID,
-      template_id: EMAILJS_TEMPLATE_ID,
-      user_id: EMAILJS_PUBLIC_KEY,
-      accessToken: EMAILJS_PRIVATE_KEY,
-      template_params: {
-        ...templateParams,
-        to_email: to,
-        email: to
-      }
-    };
+// ─── Función principal ───────────────────────────────────────────────────────
+export async function sendMail({ to, subject, html }) {
+  const resend = getResendClient();
 
-    console.log("[EmailJS] Enviando correo a:", to);
-    console.log("[EmailJS] template_params:", JSON.stringify(payload.template_params, null, 2));
-
-    try {
-      const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload)
-      });
-
-      if (response.ok) {
-        console.log("[EmailJS] ✅ Correo enviado exitosamente a:", to);
-        return { delivered: true, mode: "emailjs" };
-      }
-      
-      const errText = await response.text();
-      console.error(`[EmailJS] ❌ API Error ${response.status}: ${errText}`);
-      console.error(`[EmailJS] service_id: ${EMAILJS_SERVICE_ID}, template_id: ${EMAILJS_TEMPLATE_ID}`);
-    } catch (error) {
-      console.error("[EmailJS] ❌ Fetch Error:", error.message);
-    }
-  } else {
-    console.warn("[EmailJS] ⚠️  Variables de entorno faltantes:", {
-      EMAILJS_SERVICE_ID: !!EMAILJS_SERVICE_ID,
-      EMAILJS_TEMPLATE_ID: !!EMAILJS_TEMPLATE_ID,
-      EMAILJS_PUBLIC_KEY: !!EMAILJS_PUBLIC_KEY,
-      EMAILJS_PRIVATE_KEY: !!EMAILJS_PRIVATE_KEY,
-    });
+  if (!resend) {
+    console.warn("[Email] ⚠️  RESEND_API_KEY no configurada. Correo NO enviado.");
+    console.warn("[Email] Para:", to, "| Asunto:", subject);
+    return { delivered: false, mode: "no-config" };
   }
 
-  // Respaldo SMTP (NodeMailer)
-  const transport = createTransport();
-  const from = process.env.MAIL_FROM || "CRM YouRef <no-reply@youref.cl>";
+  const from = getFromAddress();
 
-  if (!transport) {
-    console.warn("--- MAILBOX FALLBACK (No SMTP/EmailJS) ---");
-    console.warn(`To: ${to}`);
-    console.warn(`Subject: ${subject}`);
-    console.warn(`Template Params:`, templateParams);
-    return { delivered: false, mode: "local-mailbox" };
-  }
+  console.log(`[Resend] Enviando correo a: ${to}`);
+  console.log(`[Resend] Desde: ${from} | Asunto: ${subject}`);
 
   try {
-    await transport.sendMail({ from, to, subject, html });
-    return { delivered: true, mode: "smtp" };
-  } catch (error) {
-    console.error("SMTP Error:", error);
-    return { delivered: false, error: error.message };
+    const { data, error } = await resend.emails.send({
+      from,
+      to,
+      subject,
+      html,
+    });
+
+    if (error) {
+      console.error("[Resend] ❌ Error al enviar:", error);
+      return { delivered: false, error: error.message };
+    }
+
+    console.log(`[Resend] ✅ Correo enviado exitosamente. ID: ${data.id}`);
+    return { delivered: true, mode: "resend", id: data.id };
+
+  } catch (err) {
+    console.error("[Resend] ❌ Excepción:", err.message);
+    return { delivered: false, error: err.message };
   }
 }
