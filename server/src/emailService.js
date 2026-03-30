@@ -16,7 +16,7 @@ function getResendClient() {
 function getFromAddress() {
   const domain = process.env.RESEND_FROM_DOMAIN;
   if (domain) {
-    return `YouRef CRM <no-reply@${domain}>`;
+    return `YouRef CRM <contacto@${domain}>`;
   }
   return "YouRef CRM <onboarding@resend.dev>";
 }
