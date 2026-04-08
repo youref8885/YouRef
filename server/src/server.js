@@ -33,10 +33,14 @@ process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 
 const app = express();
 const PORT = process.env.PORT || 4000;
+const productionOrigins = ["https://youref.cl", "https://www.youref.cl"];
 const defaultClientUrls = ["http://localhost:5173", "http://localhost:5174", "http://127.0.0.1:5173", "http://127.0.0.1:5174"];
-const allowedOrigins = process.env.CLIENT_URL
-  ? process.env.CLIENT_URL.split(",").map((entry) => entry.trim())
-  : defaultClientUrls;
+const allowedOrigins = [
+  ...productionOrigins,
+  ...(process.env.CLIENT_URL
+    ? process.env.CLIENT_URL.split(",").map((entry) => entry.trim())
+    : defaultClientUrls)
+];
 
 app.use(
   cors({
@@ -112,7 +116,7 @@ app.post("/api/auth/verify-2fa", async (req, res) => {
     updates.date_of_birth = dateOfBirth;
     updates.phone = normalizePhone(phone);
     updates.password_hash = hashPassword(password);
-    
+
     // Si viene la aceptación de términos
     if (req.body.termsAccepted) {
       updates.terms_accepted = true;
