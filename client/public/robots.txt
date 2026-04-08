@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /$
+Allow: /registro
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /referrals
+Disallow: /api/
+
+Sitemap: https://www.youref.cl/sitemap.xml
