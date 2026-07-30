@@ -69,6 +69,32 @@ app.get("/api/health", (_req, res) => {
 });
 
 /**
+ * Keepalive
+ * Este endpoint debe ser llamado periódicamente (cada 10-14 min) por un
+ * servicio externo (ej: cron-job.org) con dos objetivos:
+ *  1. Evitar que Render "duerma" la instancia por inactividad (free tier).
+ *  2. Generar actividad real contra Supabase para que el proyecto no se
+ *     pause automáticamente por inactividad prolongada (free tier pausa
+ *     proyectos tras ~7 días sin requests a la API).
+ * A diferencia de /api/health, este endpoint SÍ consulta la base de datos.
+ */
+app.get("/api/keepalive", async (_req, res) => {
+  try {
+    const { error } = await supabase.from("users").select("id").limit(1);
+
+    if (error) {
+      console.error("Keepalive: error consultando Supabase:", error.message);
+      return res.status(500).json({ ok: false, message: "Error al consultar Supabase." });
+    }
+
+    res.json({ ok: true, timestamp: new Date().toISOString() });
+  } catch (err) {
+    console.error("Keepalive: error inesperado:", err.message);
+    res.status(500).json({ ok: false, message: "Error inesperado en keepalive." });
+  }
+});
+
+/**
  * ENDPOINTS DE AUTENTICACIÓN
  */
 app.post("/api/auth/register", async (req, res) => {
